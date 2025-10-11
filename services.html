@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FullStack Engineering Consultancy Services - Bringing your engineering vision to life with expert planning, design, and execution.">
+  <meta name="keywords" content="Engineering, Consultancy, FullStack, Projects, Construction, Planning, Design, Services">
+  <meta name="author" content="FullStack Engineering Consultancy Services">
+  <title>FullStack Engineering Consultancy Services</title>
+    <link rel="icon" href="/assests/logo.png" type="image/x-icon" />
+
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Simple JavaScript for menu -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuBtn = document.getElementById("menu-btn");
+      const mobileMenu = document.getElementById("mobile-menu");
+      menuBtn.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+      });
+    });
+  </script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+  <!-- Navbar -->
+<header id="navbar" class="bg-gray-100 text-teal-600 fixed w-full top-0 left-0 z-50 shadow-md transition-transform duration-300">
+  <div class="max-w-7xl mx-auto flex items-center justify-between p-4">
+    <div class="flex items-center space-x-3">
+      <img src="/assests/logo.png" alt="FullStack Logo" class="w-20 h-20">
+      <h1 class="font-bold text-lg md:text-xl">FullStack Engineering Consultancy Services</h1>
+    </div>
+    <nav class="hidden md:flex space-x-6">
+      <a href="/index.html" class="font-bold hover:text-red-400 transition">Home</a>
+      <a href="#about" class="font-bold hover:text-red-400 transition">About Us</a>
+      <a href="#services" class="font-bold hover:text-red-400 transition">Services</a>
+      <a href="#projects" class="font-bold hover:text-red-400 transition">Projects</a>
+      <a href="/contactus.html" class="font-bold hover:text-red-400 transition">Contact Us</a>
+      <a href="/login.html" class="font-bold hover:text-red-400 transition">Login / SignUp</a>
+    </nav>
+    <button id="menu-btn" class="md:hidden focus:outline-none">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden bg-white-700 md:hidden flex flex-col items-center">
+  <a href="#home" class="font-bold py-2 px-4 hover:bg-gray-200">Home</a>
+  <a href="#about" class="font-bold py-2 px-4 hover:bg-gray-200">About Us</a>
+  <a href="#services" class="font-bold py-2 px-4 hover:bg-gray-200">Services</a>
+  <a href="#projects" class="font-bold py-2 px-4 hover:bg-gray-200">Projects</a>
+  <a href="/contactus.html" class="font-bold py-2 px-4 hover:bg-gray-200">Contact Us</a>
+  <a href="/login.html" class="font-bold py-2 px-4 hover:bg-gray-200">Login / SignUp</a>
+</div>
+
+</header>
+
+<script>
+  let lastScrollY = window.scrollY;
+  const navbar = document.getElementById('navbar');
+
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+
+    if (currentScrollY > lastScrollY) {
+      // Scrolling down
+      navbar.style.transform = 'translateY(-100%)';
+    } else {
+      // Scrolling up
+      navbar.style.transform = 'translateY(0)';
+    }
+
+    lastScrollY = currentScrollY;
+  });
+</script>
+
+  <header class="text-center py-10 mt-24 bg-white shadow">
+    <h1 class="text-3xl md:text-4xl font-bold">Our Expertise & Key Services</h1>
+    <p class="text-gray-600 mt-2">Comprehensive engineering solutions tailored to your business requirements.</p>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    <!-- Estimation & Costing -->
+    <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition">
+      <img src="https://images.pexels.com/photos/210421/pexels-photo-210421.jpeg"
+           alt="Estimation & Costing" class="rounded-md mb-4 w-full h-48 object-cover" />
+      <h2 class="text-xl font-semibold mb-2">Estimation & Costing</h2>
+      <p class="text-gray-600 mb-4">Accurate cost analysis and detailed estimation to ensure feasibility and budget control.</p>
+      <button onclick="learnMore('Estimation & Costing')" class="text-blue-600 hover:underline">Learn More →</button>
+    </div>
+
+    <!-- Project Management -->
+    <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition">
+      <img src="https://images.pexels.com/photos/3184296/pexels-photo-3184296.jpeg"
+           alt="Project Management" class="rounded-md mb-4 w-full h-48 object-cover" />
+      <h2 class="text-xl font-semibold mb-2">Project Management</h2>
+      <p class="text-gray-600 mb-4">Comprehensive oversight from initiation to completion, ensuring projects are on time and within budget.</p>
+      <button onclick="learnMore('Project Management')" class="text-blue-600 hover:underline">Learn More →</button>
+    </div>
+
+    <!-- Structural Design -->
+    <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition">
+      <img src="https://images.pexels.com/photos/210600/pexels-photo-210600.jpeg"
+           alt="Structural Design" class="rounded-md mb-4 w-full h-48 object-cover" />
+      <h2 class="text-xl font-semibold mb-2">Structural Design</h2>
+      <p class="text-gray-600 mb-4">Innovative and safe structural designs for diverse building and infrastructure projects.</p>
+      <button onclick="learnMore('Structural Design')" class="text-blue-600 hover:underline">Learn More →</button>
+    </div>
+
+    <!-- Civil Engineering -->
+    <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition">
+      <img src="https://images.pexels.com/photos/374710/pexels-photo-374710.jpeg"
+           alt="Civil Engineering" class="rounded-md mb-4 w-full h-48 object-cover" />
+      <h2 class="text-xl font-semibold mb-2">Civil Engineering</h2>
+      <p class="text-gray-600 mb-4">Expertise in infrastructure development, land use, and environmental planning.</p>
+      <button onclick="learnMore('Civil Engineering')" class="text-blue-600 hover:underline">Learn More →</button>
+    </div>
+
+    <!-- Mechanical Engineering -->
+    <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition">
+      <img src="https://images.pexels.com/photos/256381/pexels-photo-256381.jpeg"
+           alt="Mechanical Engineering" class="rounded-md mb-4 w-full h-48 object-cover" />
+      <h2 class="text-xl font-semibold mb-2">Mechanical Engineering</h2>
+      <p class="text-gray-600 mb-4">Design and analysis of mechanical systems for performance and efficiency.</p>
+      <button onclick="learnMore('Mechanical Engineering')" class="text-blue-600 hover:underline">Learn More →</button>
+    </div>
+
+    <!-- Electrical Systems -->
+    <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition">
+      <img src="https://images.pexels.com/photos/256913/pexels-photo-256913.jpeg"
+           alt="Electrical Systems" class="rounded-md mb-4 w-full h-48 object-cover" />
+      <h2 class="text-xl font-semibold mb-2">Electrical Systems</h2>
+      <p class="text-gray-600 mb-4">Advanced electrical design, distribution, and energy-efficient systems.</p>
+      <button onclick="learnMore('Electrical Systems')" class="text-blue-600 hover:underline">Learn More →</button>
+    </div>
+  </main>
+
+  <script>
+    function learnMore(service) {
+      alert('You clicked Learn More for: ' + service);
+    }
+  </script>
+
+      <footer class="bg-gray-100 text-gray-700 border-t border-gray-300 pt-10 pb-6">
+    <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-8 px-6">
+
+      <!-- Company Info -->
+      <div>
+        <div class="flex items-center mb-4">
+          <img src="/assests/logo.png" alt="FSES Logo" class="w-10 h-10 mr-2">
+          <h3 class="text-xl font-bold text-blue-800">FSES</h3>
+        </div>
+        <p class="text-sm leading-relaxed">
+          Delivering cutting-edge precision engineering solutions for mission-critical
+          applications across strategic sectors with innovation and reliability.
+        </p>
+        <!-- <div class="flex space-x-2 mt-4">
+          <button class="w-6 h-6 border border-gray-500 rounded-full"></button>
+          <button class="w-6 h-6 border border-gray-500 rounded-full"></button>
+          <button class="w-6 h-6 border border-gray-500 rounded-full"></button>
+        </div> -->
+      </div>
+
+      <!-- Quick Links -->
+      <div>
+        <h4 class="text-lg font-semibold text-blue-800 mb-4">Quick Links</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="/index.html" class="hover:text-blue-700 flex items-center">› Home Page</a></li>
+          <li><a href="#" class="hover:text-blue-700 flex items-center">› About</a></li>
+          <li><a href="#" class="hover:text-blue-700 flex items-center">› Services</a></li>
+          <li><a href="#" class="hover:text-blue-700 flex items-center">› Projects</a></li>
+          <li><a href="#" class="hover:text-blue-700 flex items-center">› Careers</a></li>
+        </ul>
+      </div>
+
+      <!-- Explore More -->
+      <div>
+        <h4 class="text-lg font-semibold text-blue-800 mb-4">Explore More</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#" class="hover:text-blue-700 flex items-center">› Clients</a></li>
+          <li><a href="#" class="hover:text-blue-700 flex items-center">› Products</a></li>
+          <li><a href="#" class="hover:text-blue-700 flex items-center">› Infrastructure</a></li>
+          <li><a href="#" class="hover:text-blue-700 flex items-center">› Contact Us</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <h4 class="text-lg font-semibold text-blue-800 mb-4">Contact Us</h4>
+        <ul class="space-y-3 text-sm">
+          <li class="flex items-start gap-2"><span>📍</span> Plot #20, Hyderabad, Telangana, India</li>
+          <li class="flex items-start gap-2"><span>✉️</span>chilakapatil247@gmail.com</li>
+          <li class="flex items-start gap-2"><span>📞</span> +91 6302 91175</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto mt-10 border-t border-gray-300 pt-4 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 px-6">
+      <p>© 2025 FullStack Engineering Consultancy Services. All rights reserved.</p>
+      <div class="flex space-x-6 mt-2 md:mt-0">
+        <a href="#" class="hover:text-blue-700">Privacy Policy</a>
+        <a href="#" class="hover:text-blue-700">Terms of Service</a>
+        <a href="#" class="hover:text-blue-700">Sitemap</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
