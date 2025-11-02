@@ -76,7 +76,7 @@ export const Services = () => {
 
     return (
       <motion.article
-        className="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-xl transition-shadow duration-300 group"
+        className="bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden hover:shadow-xl transition-shadow duration-300 group"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -93,11 +93,11 @@ export const Services = () => {
           </div>
         </div>
         <div className="p-4">
-          <h3 className="text-base font-semibold text-gray-900 mb-2">{service.title}</h3>
-          <p className="text-sm text-gray-600 mb-3">{service.description}</p>
+          <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">{service.title}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">{service.description}</p>
           <Link
             to="/contact"
-            className="inline-flex items-center text-primary-600 font-medium hover:text-primary-700 transition-colors text-sm"
+            className="inline-flex items-center text-primary-600 dark:text-primary-400 font-medium hover:text-primary-700 dark:hover:text-primary-500 transition-colors text-sm"
           >
             Learn More →
           </Link>
@@ -121,7 +121,7 @@ export const Services = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-primary-50 py-8">
+      <section className="bg-primary-50 dark:bg-gray-800 py-8">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -129,10 +129,10 @@ export const Services = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white mb-3">
               Ready to Start Your Project?
             </h2>
-            <p className="text-sm md:text-base text-gray-600 mb-6 max-w-2xl mx-auto">
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
               Get in touch with our team to discuss your engineering requirements and discover how we can help bring your vision to life.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">

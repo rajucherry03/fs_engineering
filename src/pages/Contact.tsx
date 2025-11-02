@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, Phone, MapPin, Send } from 'lucide-react'
+import { Send } from 'lucide-react'
 
 export const Contact = () => {
   const [formData, setFormData] = useState({
@@ -73,192 +73,149 @@ export const Contact = () => {
   }
 
   return (
-    <div className="min-h-screen pt-20">
-      {/* Contact Section */}
-      <section className="min-h-screen flex items-center justify-center px-4 py-8">
-        <div className="max-w-4xl w-full">
+    <div className="pt-20">
+      {/* Contact Form Section */}
+      <section className="pt-8 pb-16 md:pb-20 bg-white dark:bg-gray-900">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <motion.div
-            className="bg-white p-6 rounded-lg shadow-md"
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.6 }}
+            className="w-full"
           >
-            <h2 className="text-xl md:text-2xl font-semibold mb-4 text-slate-900">Contact Us</h2>
+            <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                Fill out the form below and we'll get back to you within 24 hours.
+              </p>
 
-            <form onSubmit={handleSubmit} className="grid lg:grid-cols-2 gap-4">
-              {/* Name Field */}
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-1">
-                  Name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className={`input-field ${errors.name ? 'border-red-500' : ''}`}
-                  placeholder="Your full name"
-                />
-                {errors.name && (
-                  <p className="mt-1 text-xs text-red-600">{errors.name}</p>
-                )}
-              </div>
-
-              {/* Email Field */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`input-field ${errors.email ? 'border-red-500' : ''}`}
-                  placeholder="you@example.com"
-                />
-                {errors.email && (
-                  <p className="mt-1 text-xs text-red-600">{errors.email}</p>
-                )}
-              </div>
-
-              {/* Service Dropdown */}
-              <div className="lg:col-span-2">
-                <label htmlFor="service" className="block text-sm font-medium mb-1">
-                  Service
-                </label>
-                <select
-                  id="service"
-                  name="service"
-                  value={formData.service}
-                  onChange={handleChange}
-                  className="input-field"
-                >
-                  <option value="">Select a service</option>
-                  {services.map(service => (
-                    <option key={service} value={service}>{service}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Message Field */}
-              <div className="lg:col-span-2">
-                <label htmlFor="message" className="block text-sm font-medium mb-1">
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={4}
-                  value={formData.message}
-                  onChange={handleChange}
-                  className={`input-field ${errors.message ? 'border-red-500' : ''}`}
-                  placeholder="Tell us about your project or request..."
-                />
-                {errors.message && (
-                  <p className="mt-1 text-xs text-red-600">{errors.message}</p>
-                )}
-              </div>
-
-              {/* Buttons */}
-              <div className="lg:col-span-2 flex items-center gap-3">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm px-4 py-2"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send size={14} />
-                      Send Message
-                    </>
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {/* Name Field */}
+                <div>
+                  <label htmlFor="name" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className={`input-field ${errors.name ? 'border-red-500' : ''}`}
+                    placeholder="John Doe"
+                  />
+                  {errors.name && (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.name}</p>
                   )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormData({ name: '', email: '', service: '', message: '' })
-                    setErrors({})
-                  }}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors text-sm"
-                >
-                  Reset
-                </button>
-              </div>
+                </div>
 
-              {/* Success Message */}
-              {isSubmitted && (
-                <motion.div
-                  className="lg:col-span-2 mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-md"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <p className="flex items-center gap-2">
-                    <Mail size={16} />
-                    Thanks — your message has been recorded. We'll respond soon.
-                  </p>
-                </motion.div>
-              )}
-            </form>
+                {/* Email Field */}
+                <div>
+                  <label htmlFor="email" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`input-field ${errors.email ? 'border-red-500' : ''}`}
+                    placeholder="john.doe@example.com"
+                  />
+                  {errors.email && (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.email}</p>
+                  )}
+                </div>
+
+                {/* Service Dropdown */}
+                <div>
+                  <label htmlFor="service" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                    Service of Interest
+                  </label>
+                  <select
+                    id="service"
+                    name="service"
+                    value={formData.service}
+                    onChange={handleChange}
+                    className="input-field"
+                  >
+                    <option value="">Select a service</option>
+                    {services.map(service => (
+                      <option key={service} value={service}>{service}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Message Field */}
+                <div>
+                  <label htmlFor="message" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                    Your Message <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={6}
+                    value={formData.message}
+                    onChange={handleChange}
+                    className={`input-field resize-none ${errors.message ? 'border-red-500' : ''}`}
+                    placeholder="Tell us about your project, requirements, or any questions you have..."
+                  />
+                  {errors.message && (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.message}</p>
+                  )}
+                </div>
+
+                {/* Buttons */}
+                <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto min-w-[160px]"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send size={18} />
+                        Send Message
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData({ name: '', email: '', service: '', message: '' })
+                      setErrors({})
+                    }}
+                    className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors w-full sm:w-auto"
+                  >
+                    Clear Form
+                  </button>
+                </div>
+
+                {/* Success Message */}
+                {isSubmitted && (
+                  <motion.div
+                    className="mt-4 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200 rounded-lg"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <p className="flex items-center gap-2 font-medium">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      Thank you! Your message has been sent. We'll respond within 24 hours.
+                    </p>
+                  </motion.div>
+                )}
+              </form>
+            </div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* Contact Info Section */}
-      <section className="bg-gray-50 py-8">
-        <div className="max-w-6xl mx-auto px-4">
-
-          <div className="grid md:grid-cols-3 gap-4">
-            <motion.div
-              className="text-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <div className="bg-primary-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Phone size={24} />
-              </div>
-              <h3 className="text-base font-semibold mb-2">Phone</h3>
-              <p className="text-sm text-gray-600">+91 63029 91175</p>
-            </motion.div>
-
-            <motion.div
-              className="text-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              viewport={{ once: true }}
-            >
-              <div className="bg-primary-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Mail size={24} />
-              </div>
-              <h3 className="text-base font-semibold mb-2">Email</h3>
-              <p className="text-sm text-gray-600">chilakapatil247@gmail.com</p>
-            </motion.div>
-
-            <motion.div
-              className="text-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              <div className="bg-primary-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                <MapPin size={24} />
-              </div>
-              <h3 className="text-base font-semibold mb-2">Address</h3>
-              <p className="text-sm text-gray-600">Plot #20, Hyderabad, Telangana, India</p>
-            </motion.div>
-          </div>
         </div>
       </section>
     </div>

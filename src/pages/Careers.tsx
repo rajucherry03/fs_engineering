@@ -65,7 +65,7 @@ export const Careers = () => {
     <div className="min-h-screen pt-20">
 
       {/* Benefits Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
             className="text-center mb-12"
@@ -74,8 +74,8 @@ export const Careers = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Work With Us</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Why Work With Us</h2>
+            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               We offer a supportive environment where you can grow your career and make a real impact.
             </p>
           </motion.div>
@@ -93,8 +93,8 @@ export const Careers = () => {
                 <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-primary-600">
                   <benefit.icon size={32} />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
-                <p className="text-gray-600">{benefit.description}</p>
+                <h3 className="text-xl font-semibold mb-2 dark:text-white">{benefit.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300">{benefit.description}</p>
               </motion.div>
             ))}
           </div>
@@ -102,7 +102,7 @@ export const Careers = () => {
       </section>
 
       {/* Open Positions */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
             className="text-center mb-12"
@@ -111,8 +111,8 @@ export const Careers = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Open Positions</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Open Positions</h2>
+            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               Explore our current job openings and find the perfect role for your skills and interests.
             </p>
           </motion.div>
@@ -121,7 +121,7 @@ export const Careers = () => {
             {positions.map((position, index) => (
               <motion.div
                 key={position.title}
-                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300"
+                className="bg-white dark:bg-gray-700 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -129,8 +129,8 @@ export const Careers = () => {
               >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{position.title}</h3>
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{position.title}</h3>
+                    <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-300">
                       <span className="flex items-center gap-1">
                         <MapPin size={16} />
                         {position.location}
@@ -151,13 +151,13 @@ export const Careers = () => {
                   </button>
                 </div>
                 
-                <p className="text-gray-600 mb-4">{position.description}</p>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">{position.description}</p>
                 
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Requirements:</h4>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Requirements:</h4>
                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {position.requirements.map((req, reqIndex) => (
-                      <li key={reqIndex} className="flex items-center gap-2 text-sm text-gray-600">
+                      <li key={reqIndex} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                         <div className="w-1.5 h-1.5 bg-primary-600 rounded-full"></div>
                         {req}
                       </li>

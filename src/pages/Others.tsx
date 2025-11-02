@@ -129,7 +129,7 @@ export const Others = () => {
     <div className="min-h-screen pt-20">
 
       {/* Navigation Tabs */}
-      <section className="bg-white border-b">
+      <section className="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-wrap justify-center gap-2 py-4">
             {sections.map((section) => {
@@ -138,10 +138,10 @@ export const Others = () => {
                 <button
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                    className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                     activeSection === section.id
-                      ? 'bg-primary-600 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-primary-600 dark:bg-primary-500 text-white shadow-lg'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   <IconComponent size={18} />
@@ -163,12 +163,12 @@ export const Others = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Engineering Resources</h2>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">Engineering Resources</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {resources.map((resource, index) => (
                   <motion.div
                     key={index}
-                    className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300"
+                    className="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -182,8 +182,8 @@ export const Others = () => {
                         <p className="text-xs text-gray-400">{resource.size}</p>
                       </div>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{resource.title}</h3>
-                    <p className="text-gray-600 text-sm mb-4">{resource.description}</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{resource.title}</h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{resource.description}</p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
                         <Star size={16} />
@@ -213,13 +213,13 @@ export const Others = () => {
                 {faqs.map((faq, index) => (
                   <motion.div
                     key={index}
-                    className="bg-white rounded-lg shadow-md p-6"
+                    className="bg-white dark:bg-gray-700 rounded-lg shadow-md p-6"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{faq.question}</h3>
-                    <p className="text-gray-600">{faq.answer}</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                    <p className="text-gray-600 dark:text-gray-300">{faq.answer}</p>
                   </motion.div>
                 ))}
               </div>
@@ -233,12 +233,12 @@ export const Others = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Latest Blog Posts</h2>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">Latest Blog Posts</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {blogPosts.map((post, index) => (
                   <motion.article
                     key={index}
-                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                    className="bg-white dark:bg-gray-700 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -250,12 +250,12 @@ export const Others = () => {
                         </span>
                         <span className="text-gray-500 text-sm">{post.readTime}</span>
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-3">{post.title}</h3>
-                      <p className="text-gray-600 mb-4">{post.excerpt}</p>
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">{post.title}</h3>
+                      <p className="text-gray-600 dark:text-gray-300 mb-4">{post.excerpt}</p>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{post.author}</p>
-                          <p className="text-xs text-gray-500">{post.date}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{post.author}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{post.date}</p>
                         </div>
                         <button className="text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">
                           Read More <ChevronRight size={16} />
@@ -275,12 +275,12 @@ export const Others = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Latest News & Updates</h2>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">Latest News & Updates</h2>
               <div className="max-w-4xl mx-auto space-y-4">
                 {newsItems.map((news, index) => (
                   <motion.div
                     key={index}
-                    className="bg-white rounded-lg shadow-md p-6 flex items-center gap-4"
+                    className="bg-white dark:bg-gray-700 rounded-lg shadow-md p-6 flex items-center gap-4"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -289,8 +289,8 @@ export const Others = () => {
                       <Newspaper size={24} />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900">{news.title}</h3>
-                      <p className="text-gray-600">{news.date}</p>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{news.title}</h3>
+                      <p className="text-gray-600 dark:text-gray-300">{news.date}</p>
                     </div>
                     <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
                       {news.type}
@@ -308,34 +308,34 @@ export const Others = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Get Support</h2>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">Get Support</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-white rounded-xl shadow-lg p-6 text-center">
+                <div className="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6 text-center">
                   <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Headphones size={32} />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Live Chat</h3>
-                  <p className="text-gray-600 mb-4">Get instant help from our support team</p>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Live Chat</h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">Get instant help from our support team</p>
                   <button className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors">
                     Start Chat
                   </button>
                 </div>
-                <div className="bg-white rounded-xl shadow-lg p-6 text-center">
+                <div className="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6 text-center">
                   <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <FileText size={32} />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Documentation</h3>
-                  <p className="text-gray-600 mb-4">Comprehensive guides and tutorials</p>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Documentation</h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">Comprehensive guides and tutorials</p>
                   <button className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors">
                     View Docs
                   </button>
                 </div>
-                <div className="bg-white rounded-xl shadow-lg p-6 text-center">
+                <div className="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6 text-center">
                   <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <HelpCircle size={32} />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Help Center</h3>
-                  <p className="text-gray-600 mb-4">Find answers to common questions</p>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Help Center</h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">Find answers to common questions</p>
                   <button className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors">
                     Browse FAQ
                   </button>

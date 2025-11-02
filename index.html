@@ -11,6 +11,44 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      // CRITICAL: Apply theme synchronously before any rendering to prevent flash
+      (function() {
+        try {
+          const savedTheme = localStorage.getItem('theme');
+          let theme = savedTheme;
+          
+          if (!theme) {
+            // Check system preference only if no saved theme
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+          }
+          
+          // Apply theme immediately before any paint
+          const html = document.documentElement;
+          if (theme === 'dark') {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+          
+          // Set a data attribute for CSS if needed
+          html.setAttribute('data-theme', theme);
+        } catch (e) {
+          // Fallback: default to light mode on error
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
+    <style>
+      /* Prevent flash by setting initial background color */
+      body {
+        background-color: #f9fafb;
+      }
+      html.dark body {
+        background-color: #111827;
+      }
+    </style>
 </head>
   <body>
     <div id="root"></div>

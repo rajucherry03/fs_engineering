@@ -72,40 +72,40 @@ export const About = () => {
 
           <div className="grid md:grid-cols-2 gap-6">
             <motion.div
-              className="bg-white p-6 rounded-lg shadow-md"
+              className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Our Services</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Our Services</h3>
               <div className="grid grid-cols-2 gap-3">
                 {services.map((service, index) => (
                   <div key={index} className="flex items-start">
-                    <div className="text-primary-600 mr-2 mt-0.5">
+                    <div className="text-primary-600 dark:text-primary-400 mr-2 mt-0.5">
                       <CheckCircle size={16} />
                     </div>
-                    <span className="text-sm text-gray-600">{service}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-300">{service}</span>
                   </div>
                 ))}
               </div>
             </motion.div>
 
             <motion.div
-              className="bg-white p-6 rounded-lg shadow-md"
+              className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Why Choose FSES?</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Why Choose FSES?</h3>
               <div className="space-y-3">
                 {whyChooseUs.map((item, index) => (
                   <div key={index} className="flex items-start">
-                    <div className="text-primary-600 mr-2 mt-0.5">
+                    <div className="text-primary-600 dark:text-primary-400 mr-2 mt-0.5">
                       <CheckCircle size={16} />
                     </div>
-                    <span className="text-sm text-gray-600">{item}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-300">{item}</span>
                   </div>
                 ))}
               </div>
@@ -115,7 +115,7 @@ export const About = () => {
       </section>
 
       {/* Process Section */}
-      <section className="bg-gray-50 py-8">
+      <section className="bg-gray-50 dark:bg-gray-800 py-8">
         <div className="max-w-6xl mx-auto px-4">
           <motion.div
             className="text-center mb-6"
@@ -124,8 +124,8 @@ export const About = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">Our Process</h2>
-            <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white mb-3">Our Process</h2>
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               We follow a systematic approach to ensure quality and efficiency in every project
             </p>
           </motion.div>
@@ -134,15 +134,15 @@ export const About = () => {
             {workflow.map((item, index) => (
               <motion.div
                 key={item.step}
-                className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+                className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
                 <div className="text-primary-600 text-2xl font-bold mb-3">{item.step}</div>
-                <h3 className="text-base font-semibold mb-2">{item.title}</h3>
-                <p className="text-sm text-gray-600">{item.description}</p>
+                <h3 className="text-base font-semibold mb-2 dark:text-white">{item.title}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">{item.description}</p>
               </motion.div>
             ))}
           </div>
@@ -150,7 +150,7 @@ export const About = () => {
       </section>
 
       {/* Features Section */}
-      <section className="bg-white py-8">
+      <section className="bg-white dark:bg-gray-900 py-8">
         <div className="max-w-6xl mx-auto px-4">
           <motion.div
             className="text-center mb-6"
@@ -159,8 +159,8 @@ export const About = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">Why Choose Us</h2>
-            <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white mb-3">Why Choose Us</h2>
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               We combine technical expertise with innovative solutions to deliver exceptional results
             </p>
           </motion.div>
@@ -178,8 +178,8 @@ export const About = () => {
                 <div className="bg-primary-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 text-primary-600">
                   <feature.icon size={24} />
                 </div>
-                <h3 className="text-base font-semibold mb-2">{feature.title}</h3>
-                <p className="text-sm text-gray-600">{feature.description}</p>
+                <h3 className="text-base font-semibold mb-2 dark:text-white">{feature.title}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -187,7 +187,7 @@ export const About = () => {
       </section>
 
       {/* Contact Section */}
-      <section className="bg-primary-50 py-8">
+      <section className="bg-primary-50 dark:bg-gray-800 py-8">
         <div className="max-w-6xl mx-auto px-4">
           <motion.div
             className="text-center mb-6"
@@ -196,15 +196,15 @@ export const About = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">Get In Touch</h2>
-            <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white mb-3">Get In Touch</h2>
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               Ready to start your next project? Contact our team for a consultation
             </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-4">
             <motion.div
-              className="bg-white p-4 rounded-lg shadow-md text-center"
+              className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md text-center"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
@@ -213,12 +213,12 @@ export const About = () => {
               <div className="bg-primary-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 text-primary-600">
                 <Phone size={24} />
               </div>
-              <h3 className="text-base font-semibold mb-2">Phone</h3>
-              <p className="text-sm text-gray-600">+91 6302 91175</p>
+              <h3 className="text-base font-semibold mb-2 dark:text-white">Phone</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">+91 6302 91175</p>
             </motion.div>
 
             <motion.div
-              className="bg-white p-4 rounded-lg shadow-md text-center"
+              className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md text-center"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
@@ -227,12 +227,12 @@ export const About = () => {
               <div className="bg-primary-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 text-primary-600">
                 <Mail size={24} />
               </div>
-              <h3 className="text-base font-semibold mb-2">Email</h3>
-              <p className="text-sm text-gray-600">chilakapatil247@gmail.com</p>
+              <h3 className="text-base font-semibold mb-2 dark:text-white">Email</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">chilakapatil247@gmail.com</p>
             </motion.div>
 
             <motion.div
-              className="bg-white p-4 rounded-lg shadow-md text-center"
+              className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md text-center"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -241,8 +241,8 @@ export const About = () => {
               <div className="bg-primary-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 text-primary-600">
                 <MapPin size={24} />
               </div>
-              <h3 className="text-base font-semibold mb-2">Location</h3>
-              <p className="text-sm text-gray-600">Hyderabad, India</p>
+              <h3 className="text-base font-semibold mb-2 dark:text-white">Location</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Hyderabad, India</p>
             </motion.div>
           </div>
 

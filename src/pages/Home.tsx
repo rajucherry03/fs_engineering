@@ -21,12 +21,6 @@ interface Service {
   image: string
 }
 
-interface Project {
-  title: string
-  description: string
-  image: string
-}
-
 // Constants
 const SERVICES: Service[] = [
   {
@@ -67,39 +61,6 @@ const SERVICES: Service[] = [
   },
 ]
 
-const PROJECTS: Project[] = [
-  {
-    title: 'SaaS Analytics Dashboard',
-    description: 'A fullstack analytics tool built with MERN Stack, enabling real-time data insights and client management.',
-    image: 'https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    title: 'E-Commerce Platform',
-    description: 'A secure, scalable eCommerce app with Node.js backend and React frontend, optimized for global users.',
-    image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    title: 'Enterprise CRM Solution',
-    description: 'Custom-built CRM platform for client tracking and communication, integrated with REST APIs and cloud services.',
-    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    title: 'AI-Powered Chatbot',
-    description: 'Integrated AI chatbot for enterprise support using Python, Flask, and OpenAI API, improving response time by 70%.',
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    title: 'Freelancer Portfolio Hub',
-    description: 'A multi-user portfolio builder web app using Next.js and MongoDB with smooth UI animations and SEO optimization.',
-    image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    title: 'Consulting Analytics Portal',
-    description: 'A powerful internal portal for tracking consultancy KPIs with authentication, dashboards, and real-time updates.',
-    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80',
-  },
-]
-
 // Animation variants
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -117,7 +78,7 @@ const staggerContainer = {
 
 // Components
 const HeroSection = () => (
-  <section className="mt-20 pt-16 md:pt-24 pb-16 md:pb-24 bg-gradient-to-br from-blue-50 to-white">
+  <section className="mt-20 pt-16 md:pt-24 pb-16 md:pb-24 bg-gradient-to-br from-blue-50 to-white dark:from-gray-800 dark:to-gray-900">
     <div className="max-w-7xl mx-auto px-6">
       <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
         <motion.div
@@ -138,11 +99,11 @@ const HeroSection = () => (
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-gray-900 mb-4">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-gray-900 dark:text-white mb-4">
             Bringing your <br />
-            <span className="text-gradient font-extrabold">Engineering Vision</span> to Life
+            <span className="text-gradient font-extrabold" style={{ fontSize: 'calc(100% + 10px)' }}>Engineering Vision</span> to Life
           </h1>
-          <p className="text-sm md:text-base text-gray-600 mb-6 max-w-2xl">
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mb-6 max-w-2xl">
             Comprehensive engineering solutions designed to meet the diverse needs of our clients with innovative planning and precise execution.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -167,10 +128,10 @@ const HeroSection = () => (
 )
 
 const AboutSection = () => (
-  <section className="py-8 px-4 bg-gray-50">
+  <section className="py-8 px-4 bg-gray-50 dark:bg-gray-800">
     <div className="max-w-4xl mx-auto">
       <motion.h2
-        className="text-xl md:text-2xl font-semibold mb-4 text-gray-900 text-center"
+        className="text-xl md:text-2xl font-semibold mb-4 text-gray-900 dark:text-white text-center"
         {...fadeInUp}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -178,7 +139,7 @@ const AboutSection = () => (
         About Us
       </motion.h2>
       <motion.p
-        className="text-sm md:text-base text-gray-600 mb-4 text-justify"
+        className="text-sm md:text-base text-gray-600 dark:text-gray-300 mb-4 text-justify"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.1 }}
@@ -190,7 +151,7 @@ const AboutSection = () => (
         successful delivery of your projects from inception to completion.
       </motion.p>
       <motion.p
-        className="text-sm md:text-base text-gray-600 text-justify"
+        className="text-sm md:text-base text-gray-600 dark:text-gray-300 text-justify"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
@@ -210,7 +171,7 @@ const AboutSection = () => (
       >
         <Link
           to="/about"
-          className="inline-block px-4 py-2 bg-slate-800 text-white font-medium rounded-md hover:bg-slate-700 transition text-sm"
+          className="inline-block px-4 py-2 bg-slate-800 dark:bg-slate-700 text-white font-medium rounded-md hover:bg-slate-700 dark:hover:bg-slate-600 transition text-sm"
         >
           Read More
         </Link>
@@ -224,7 +185,7 @@ const ServiceCard = ({ service, index }: { service: Service; index: number }) =>
   
   return (
     <motion.article
-      className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 group"
+      className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 group"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -241,11 +202,11 @@ const ServiceCard = ({ service, index }: { service: Service; index: number }) =>
         </div>
       </div>
       <div className="p-4">
-        <h3 className="text-base font-semibold text-gray-900 mb-2">{service.title}</h3>
-        <p className="text-sm text-gray-600 mb-3">{service.description}</p>
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">{service.title}</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">{service.description}</p>
         <Link
           to="/contact"
-          className="inline-flex items-center text-primary-600 font-medium hover:text-primary-700 transition-colors text-sm"
+          className="inline-flex items-center text-primary-600 dark:text-primary-400 font-medium hover:text-primary-700 dark:hover:text-primary-500 transition-colors text-sm"
         >
           Learn More →
         </Link>
@@ -255,7 +216,7 @@ const ServiceCard = ({ service, index }: { service: Service; index: number }) =>
 }
 
 const ServicesSection = () => (
-  <section className="bg-white">
+  <section className="bg-white dark:bg-gray-900">
     <div className="max-w-6xl mx-auto px-4 py-8">
       <motion.div
         className="text-center"
@@ -263,8 +224,8 @@ const ServicesSection = () => (
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
       >
-        <h2 className="text-xl md:text-2xl font-semibold mb-3 text-gray-900">Our Expertise & Key Services</h2>
-        <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
+        <h2 className="text-xl md:text-2xl font-semibold mb-3 text-gray-900 dark:text-white">Our Expertise & Key Services</h2>
+        <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
           Comprehensive engineering solutions tailored to your business requirements.
         </p>
       </motion.div>
@@ -286,82 +247,23 @@ const ServicesSection = () => (
   </section>
 )
 
-const ProjectCard = ({ project, index }: { project: Project; index: number }) => (
-  <motion.div
-    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, delay: index * 0.1 }}
-    viewport={{ once: true }}
-  >
-    <img
-      src={project.image}
-      alt={project.title}
-      className="w-full h-32 object-cover"
-    />
-    <div className="p-4">
-      <h3 className="text-base font-semibold mb-2">{project.title}</h3>
-      <p className="text-sm text-gray-600 mb-3">{project.description}</p>
-      <Link
-        to="/contact"
-        className="inline-block bg-blue-600 text-white py-1.5 px-4 rounded-lg hover:bg-blue-700 transition text-sm"
-      >
-        Get in Touch
-      </Link>
-    </div>
-  </motion.div>
-)
-
-const ProjectsSection = () => (
-  <section className="py-8 px-4">
-    <div className="max-w-6xl mx-auto">
-      <motion.div
-        className="text-center mb-6"
-        {...fadeInUp}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-      >
-        <h2 className="text-xl md:text-2xl font-semibold mb-3 text-gray-900">Our Projects</h2>
-        <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
-          Explore some of the impactful solutions we've built for our clients — from scalable web platforms to
-          AI-powered dashboards.
-        </p>
-      </motion.div>
-
-      <motion.div 
-        className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
-        variants={staggerContainer}
-        initial="initial"
-        whileInView="animate"
-        viewport={{ once: true }}
-      >
-        {PROJECTS.map((project, index) => (
-          <motion.div key={project.title}>
-            <ProjectCard project={project} index={index} />
-          </motion.div>
-        ))}
-      </motion.div>
-    </div>
-  </section>
-)
-
 const CTASection = () => (
   <section className="px-4 py-6">
     <div className="max-w-4xl mx-auto">
       <motion.div
-        className="bg-gradient-to-br from-white to-slate-50 rounded-lg p-6 text-center"
+        className="bg-gradient-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-900 rounded-lg p-6 text-center"
         {...fadeInUp}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
       >
-        <h2 className="text-lg md:text-xl font-semibold text-slate-900 mb-3">Ready to Transform Your Business?</h2>
-        <p className="text-sm md:text-base text-slate-600 max-w-2xl mx-auto mb-4">
+        <h2 className="text-lg md:text-xl font-semibold text-slate-900 dark:text-white mb-3">Ready to Transform Your Business?</h2>
+        <p className="text-sm md:text-base text-slate-600 dark:text-gray-300 max-w-2xl mx-auto mb-4">
           Connect with our experts to discuss project requirements and discover how we can drive your success.
         </p>
         <div>
           <Link
             to="/contact"
-            className="inline-flex items-center px-4 py-2 rounded-md text-white bg-slate-800 font-medium focus-ring text-sm"
+            className="inline-flex items-center px-4 py-2 rounded-md text-white bg-slate-800 dark:bg-slate-700 font-medium focus-ring text-sm hover:bg-slate-700 dark:hover:bg-slate-600"
           >
             Get in Touch
             <span className="ml-2">
@@ -376,7 +278,7 @@ const CTASection = () => (
 
 // Stats Section Component
 const StatsSection = () => (
-  <section className="py-8 bg-gradient-to-r from-primary-600 to-blue-600">
+  <section className="py-8 bg-gradient-to-r from-primary-600 to-blue-600 dark:from-primary-700 dark:to-blue-700">
     <div className="max-w-6xl mx-auto px-4">
       <motion.div
         className="grid grid-cols-2 md:grid-cols-4 gap-6"
@@ -410,7 +312,7 @@ const StatsSection = () => (
 
 // Testimonials Section Component
 const TestimonialsSection = () => (
-  <section className="py-8 bg-gray-50">
+  <section className="py-8 bg-gray-50 dark:bg-gray-800">
     <div className="max-w-6xl mx-auto px-4">
       <motion.div
         className="text-center mb-6"
@@ -419,8 +321,8 @@ const TestimonialsSection = () => (
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
       >
-        <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">What Our Clients Say</h2>
-        <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
+        <h2 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white mb-3">What Our Clients Say</h2>
+        <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
           Don't just take our word for it. Here's what our satisfied clients have to say about our services.
         </p>
       </motion.div>
@@ -448,7 +350,7 @@ const TestimonialsSection = () => (
         ].map((testimonial, index) => (
           <motion.div
             key={index}
-            className="bg-white rounded-lg shadow-md p-4"
+            className="bg-white dark:bg-gray-700 rounded-lg shadow-md p-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -461,10 +363,10 @@ const TestimonialsSection = () => (
                 </div>
               ))}
             </div>
-            <p className="text-sm text-gray-600 mb-3 italic">"{testimonial.content}"</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 italic">"{testimonial.content}"</p>
             <div>
-              <div className="text-sm font-semibold text-gray-900">{testimonial.name}</div>
-              <div className="text-xs text-gray-500">{testimonial.company}</div>
+              <div className="text-sm font-semibold text-gray-900 dark:text-white">{testimonial.name}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{testimonial.company}</div>
             </div>
           </motion.div>
         ))}
@@ -479,9 +381,6 @@ export const Home = () => {
       <HeroSection />
       <AboutSection />
       <ServicesSection />
-      <ProjectsSection />
-      <StatsSection />
-      <TestimonialsSection />
       <CTASection />
     </div>
   )

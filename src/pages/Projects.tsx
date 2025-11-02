@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ExternalLink, Github, Plus, Edit, Trash2, Eye } from 'lucide-react'
+import { Calendar, Clock, DollarSign, Users, Star, X } from 'lucide-react'
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from '../lib/firebase'
+import { normalizeImageUrl } from '../utils/imageUtils'
+import ImageWithFallback from '../components/ImageWithFallback'
 
 interface Project {
   id: string
@@ -13,352 +17,322 @@ interface Project {
   structure?: string
   estimation?: string
   status: 'completed' | 'ongoing' | 'planned'
+  featured: boolean
+  views: number
   createdAt: string
+  updatedAt: string
 }
 
 export const Projects = () => {
   const [projects, setProjects] = useState<Project[]>([])
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingProject, setEditingProject] = useState<Project | null>(null)
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const [filter, setFilter] = useState('All')
+  const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set())
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const categories = ['All', 'Web Application', 'E-Commerce', 'Enterprise Software', 'AI/ML', 'Portfolio Platform', 'Analytics Dashboard']
-
-  // Sample projects data
+  // Fetch projects from Firebase
   useEffect(() => {
-    const sampleProjects: Project[] = [
-      {
-        id: '1',
-        title: 'SaaS Analytics Dashboard',
-        description: 'A fullstack analytics tool built with MERN Stack, enabling real-time data insights and client management.',
-        image: 'https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=800&q=80',
-        technologies: ['React', 'Node.js', 'MongoDB', 'Express'],
-        category: 'Web Application',
-        analysis: 'Comprehensive data analysis with real-time processing capabilities',
-        structure: 'Microservices architecture with scalable database design',
-        estimation: '6 months development, $50,000 budget',
-        status: 'completed',
-        createdAt: '2023-01-15'
-      },
-      {
-        id: '2',
-        title: 'E-Commerce Platform',
-        description: 'A secure, scalable eCommerce app with Node.js backend and React frontend, optimized for global users.',
-        image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80',
-        technologies: ['React', 'Node.js', 'PostgreSQL', 'Stripe'],
-        category: 'E-Commerce',
-        analysis: 'Market analysis for global e-commerce trends',
-        structure: 'Multi-tier architecture with payment integration',
-        estimation: '8 months development, $75,000 budget',
-        status: 'completed',
-        createdAt: '2023-03-20'
-      },
-      {
-        id: '3',
-        title: 'Enterprise CRM Solution',
-        description: 'Custom-built CRM platform for client tracking and communication, integrated with REST APIs and cloud services.',
-        image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80',
-        technologies: ['Vue.js', 'Laravel', 'MySQL', 'AWS'],
-        category: 'Enterprise Software',
-        analysis: 'Business process analysis and workflow optimization',
-        structure: 'Cloud-native architecture with API-first design',
-        estimation: '10 months development, $100,000 budget',
-        status: 'ongoing',
-        createdAt: '2023-06-10'
+    const fetchProjects = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const projectsCollection = collection(db, 'projects')
+        const projectsSnapshot = await getDocs(projectsCollection)
+        const projectsData = projectsSnapshot.docs.map(doc => {
+          const data = doc.data()
+          return {
+            id: doc.id,
+            title: data.title || '',
+            description: data.description || '',
+            image: data.image || '',
+            technologies: data.technologies || [],
+            category: data.category || '',
+            analysis: data.analysis || '',
+            structure: data.structure || '',
+            estimation: data.estimation || '',
+            status: data.status || 'planned',
+            featured: data.featured || false,
+            views: data.views || 0,
+            createdAt: data.createdAt || new Date().toISOString(),
+            updatedAt: data.updatedAt || new Date().toISOString()
+          }
+        }) as Project[]
+        
+        // Sort by createdAt (newest first)
+        projectsData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        
+        // Normalize image URLs for all projects in parallel for better performance
+        const projectsWithNormalizedImages = await Promise.all(
+          projectsData.map(async (project) => {
+            if (project.image) {
+              try {
+                const normalizedUrl = await normalizeImageUrl(project.image)
+                return { ...project, image: normalizedUrl || project.image }
+              } catch (error) {
+                console.warn(`Failed to normalize image for project ${project.id}:`, error)
+                return project
+              }
+            }
+            return project
+          })
+        )
+        
+        setProjects(projectsWithNormalizedImages)
+        
+        // Debug: Log sample project images
+        if (projectsWithNormalizedImages.length > 0) {
+          console.log('Sample project images:', projectsWithNormalizedImages.slice(0, 3).map(p => ({
+            id: p.id,
+            title: p.title,
+            image: p.image,
+            imageType: typeof p.image,
+            imageLength: p.image?.length
+          })))
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error)
+        setError('Failed to load projects. Please try again.')
+      } finally {
+        setLoading(false)
       }
-    ]
-    setProjects(sampleProjects)
+    }
+
+    fetchProjects()
   }, [])
 
-  const filteredProjects = projects.filter(project => 
-    filter === 'All' || project.category === filter
-  )
-
-  const handleAddProject = () => {
-    setEditingProject({
-      id: '',
-      title: '',
-      description: '',
-      image: '',
-      technologies: [],
-      category: '',
-      analysis: '',
-      structure: '',
-      estimation: '',
-      status: 'planned',
-      createdAt: new Date().toISOString()
+  const handleCardClick = (projectId: string) => {
+    setFlippedCards(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(projectId)) {
+        newSet.delete(projectId)
+      } else {
+        newSet.add(projectId)
+      }
+      return newSet
     })
-    setIsModalOpen(true)
-  }
-
-  const handleEditProject = (project: Project) => {
-    setEditingProject(project)
-    setIsModalOpen(true)
-  }
-
-  const handleDeleteProject = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this project?')) {
-      setProjects(projects.filter(p => p.id !== id))
-    }
-  }
-
-  const handleViewDetails = (project: Project) => {
-    setSelectedProject(project)
-  }
-
-  const handleSaveProject = (project: Project) => {
-    if (project.id) {
-      setProjects(projects.map(p => p.id === project.id ? project : p))
-    } else {
-      const newProject = { ...project, id: Date.now().toString() }
-      setProjects([...projects, newProject])
-    }
-    setIsModalOpen(false)
-    setEditingProject(null)
   }
 
   return (
     <div className="min-h-screen pt-20">
       {/* Projects Section */}
-      <section className="py-8">
-        <div className="max-w-6xl mx-auto px-4">
+      <section className="py-8 md:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="text-center mb-8 md:mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Our Portfolio
+            </h1>
+            <p className="text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              Click on any project to view details
+            </p>
+          </motion.div>
 
-          {/* Filter Tabs */}
-          <div className="flex flex-wrap justify-center gap-3 mb-6">
-            {categories.map((category) => (
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
               <button
-                key={category}
-                onClick={() => setFilter(category)}
-                className={`px-4 py-2 rounded-full border transition-colors duration-200 text-sm ${
-                  filter === category
-                    ? 'bg-primary-600 text-white border-primary-600'
-                    : 'border-gray-300 text-gray-700 hover:bg-primary-50 hover:border-primary-300'
-                }`}
+                onClick={() => window.location.reload()}
+                className="btn-primary"
               >
-                {category}
+                Retry
               </button>
-            ))}
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredProjects.map((project, index) => (
-              <motion.div
-                key={project.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 group"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <div className="relative overflow-hidden">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium">
-                    {project.category}
-                  </div>
-                  <div className="absolute top-2 left-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      project.status === 'completed' ? 'bg-green-100 text-green-800' :
-                      project.status === 'ongoing' ? 'bg-blue-100 text-blue-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {project.status}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="p-4">
-                  <h3 className="text-base font-semibold mb-2">{project.title}</h3>
-                  <p className="text-sm text-gray-600 mb-3">{project.description}</p>
-                  
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {project.technologies.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full"
+            </div>
+          ) : projects.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600 dark:text-gray-300 mb-4">No projects found.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Check back later for new projects.</p>
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+              {projects.map((project, index) => {
+                const isFlipped = flippedCards.has(project.id)
+                return (
+                  <motion.div
+                    key={project.id}
+                    className="h-[400px] perspective-1000"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <div
+                      className={`relative w-full h-full preserve-3d transition-transform duration-700 cursor-pointer ${
+                        isFlipped ? 'rotate-y-180' : ''
+                      }`}
+                      onClick={() => handleCardClick(project.id)}
+                      style={{ transformStyle: 'preserve-3d' }}
+                    >
+                      {/* Front of Card - Image */}
+                      <div
+                        className="absolute inset-0 w-full h-full backface-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700"
+                        style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}
                       >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleViewDetails(project)}
-                      className="flex-1 bg-primary-600 text-white py-2 px-3 rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center gap-1 text-sm"
-                    >
-                      <Eye size={14} />
-                      View
-                    </button>
-                    <button
-                      onClick={() => handleEditProject(project)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <Edit size={14} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteProject(project.id)}
-                      className="px-3 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                        <div className="relative w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+                          <ImageWithFallback
+                            src={project.image}
+                            alt={project.title}
+                            className="w-full h-full object-contain p-2"
+                            fallbackText={project.image ? 'Image Failed to Load' : 'No Image Available'}
+                          />
+                          {/* Overlay with title on hover */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
+                            <div className="p-4 w-full">
+                              <h3 className="text-white font-bold text-lg mb-1">{project.title}</h3>
+                              <p className="text-white/90 text-sm">{project.category}</p>
+                            </div>
+                          </div>
+                          {/* Status badge */}
+                          <div className="absolute top-3 right-3">
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                              project.status === 'completed' ? 'bg-green-500 text-white' :
+                              project.status === 'ongoing' ? 'bg-blue-500 text-white' :
+                              'bg-yellow-500 text-white'
+                            }`}>
+                              {project.status}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
 
+                      {/* Back of Card - Details */}
+                      <div
+                        className="absolute inset-0 w-full h-full backface-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 p-4 overflow-y-auto"
+                        style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                      >
+                        <div className="relative h-full">
+                          {/* Close button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleCardClick(project.id)
+                            }}
+                            className="absolute top-2 right-2 z-10 p-1 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                            aria-label="Close"
+                          >
+                            <X size={18} className="text-gray-700 dark:text-gray-300" />
+                          </button>
+
+                          {/* Details Content */}
+                          <div className="space-y-4">
+                            <div>
+                              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                                {project.title}
+                              </h3>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                {project.description}
+                              </p>
+                            </div>
+
+                            {/* Project Info */}
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                <Calendar size={16} />
+                                <span>{new Date(project.createdAt).toLocaleDateString()}</span>
+                              </div>
+
+                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                <span className="font-semibold">Category:</span>
+                                <span className="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded text-xs font-medium">
+                                  {project.category}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Technologies */}
+                            {project.technologies && project.technologies.length > 0 && (
+                              <div>
+                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                  <Star size={16} className="text-primary-600" />
+                                  Technologies
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {project.technologies.map((tech) => (
+                                    <span
+                                      key={tech}
+                                      className="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 text-xs rounded-full font-medium"
+                                    >
+                                      {tech}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Project Analysis */}
+                            {project.analysis && (
+                              <div>
+                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                  <Users size={16} className="text-primary-600" />
+                                  Analysis
+                                </h4>
+                                <p className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
+                                  {project.analysis}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Technical Structure */}
+                            {project.structure && (
+                              <div>
+                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                  <Clock size={16} className="text-primary-600" />
+                                  Technical Structure
+                                </h4>
+                                <p className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
+                                  {project.structure}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Estimation */}
+                            {project.estimation && (
+                              <div>
+                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                  <DollarSign size={16} className="text-primary-600" />
+                                  Estimation
+                                </h4>
+                                <div className="bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-800 p-3 rounded-lg">
+                                  <p className="text-sm text-primary-800 dark:text-primary-200 font-medium">
+                                    {project.estimation}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Stats */}
+                            <div className="grid grid-cols-2 gap-2 pt-2">
+                              <div className="bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg text-center">
+                                <div className="text-lg font-bold text-primary-600 dark:text-primary-400">
+                                  {project.views || 0}
+                                </div>
+                                <div className="text-xs text-gray-600 dark:text-gray-400">Views</div>
+                              </div>
+                              <div className="bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg text-center">
+                                <div className="text-lg font-bold text-primary-600 dark:text-primary-400">
+                                  {project.technologies?.length || 0}
+                                </div>
+                                <div className="text-xs text-gray-600 dark:text-gray-400">Tech Stack</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Project Details Modal */}
-      {selectedProject && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <motion.div
-            className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="p-8">
-              <div className="flex justify-between items-start mb-6">
-                <h2 className="text-3xl font-bold text-gray-900">{selectedProject.title}</h2>
-                <button
-                  onClick={() => setSelectedProject(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  ✕
-                </button>
-              </div>
-              
-              <img
-                src={selectedProject.image}
-                alt={selectedProject.title}
-                className="w-full h-64 object-cover rounded-lg mb-6"
-              />
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-xl font-semibold mb-3">Project Analysis</h3>
-                  <p className="text-gray-600 mb-4">{selectedProject.analysis}</p>
-                  
-                  <h3 className="text-xl font-semibold mb-3">Architecture</h3>
-                  <p className="text-gray-600">{selectedProject.structure}</p>
-                </div>
-                
-                <div>
-                  <h3 className="text-xl font-semibold mb-3">Estimation</h3>
-                  <p className="text-gray-600 mb-4">{selectedProject.estimation}</p>
-                  
-                  <h3 className="text-xl font-semibold mb-3">Technologies</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedProject.technologies.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-3 py-1 bg-primary-100 text-primary-700 text-sm rounded-full"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      {/* Add/Edit Project Modal */}
-      {isModalOpen && editingProject && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <motion.div
-            className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="p-8">
-              <h2 className="text-2xl font-bold mb-6">
-                {editingProject.id ? 'Edit Project' : 'Add New Project'}
-              </h2>
-              
-              <form onSubmit={(e) => {
-                e.preventDefault()
-                handleSaveProject(editingProject)
-              }}>
-                <div className="grid md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Title</label>
-                    <input
-                      type="text"
-                      value={editingProject.title}
-                      onChange={(e) => setEditingProject({...editingProject, title: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Category</label>
-                    <select
-                      value={editingProject.category}
-                      onChange={(e) => setEditingProject({...editingProject, category: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      required
-                    >
-                      <option value="">Select Category</option>
-                      {categories.slice(1).map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">Description</label>
-                  <textarea
-                    value={editingProject.description}
-                    onChange={(e) => setEditingProject({...editingProject, description: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    rows={3}
-                    required
-                  />
-                </div>
-                
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">Image URL</label>
-                  <input
-                    type="url"
-                    value={editingProject.image}
-                    onChange={(e) => setEditingProject({...editingProject, image: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    required
-                  />
-                </div>
-                
-                <div className="flex gap-4">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors"
-                  >
-                    Save Project
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </motion.div>
-        </div>
-      )}
     </div>
   )
 }
