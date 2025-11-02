@@ -35,8 +35,9 @@ export const forceDarkMode = () => {
 
 // Make these available globally for debugging
 if (typeof window !== 'undefined') {
-  (window as any).debugTheme = debugTheme
-  (window as any).forceLightMode = forceLightMode
-  (window as any).forceDarkMode = forceDarkMode
+  const win = window as any
+  win.debugTheme = debugTheme
+  win.forceLightMode = forceLightMode
+  win.forceDarkMode = forceDarkMode
 }
 
