@@ -116,20 +116,6 @@ export const Projects = () => {
       {/* Projects Section */}
       <section className="py-8 md:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="text-center mb-8 md:mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Our Portfolio
-            </h1>
-            <p className="text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Click on any project to view details
-            </p>
-          </motion.div>
-
           {loading ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
@@ -150,7 +136,7 @@ export const Projects = () => {
               <p className="text-sm text-gray-500 dark:text-gray-400">Check back later for new projects.</p>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+            <div className="grid sm:grid-cols-2 gap-6 md:gap-8">
               {projects.map((project, index) => {
                 const isFlipped = flippedCards.has(project.id)
                 return (

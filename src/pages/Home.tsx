@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Calculator, 
   Clock, 
@@ -10,7 +10,8 @@ import {
   Zap,
   ArrowRight,
   Star,
-  LucideIcon
+  LucideIcon,
+  X
 } from 'lucide-react'
 
 // Types
@@ -51,7 +52,7 @@ const SERVICES: Service[] = [
     icon: Wrench,
     title: 'Mechanical Engineering',
     description: 'Design and analysis of mechanical systems for performance and efficiency.',
-    image: '/assets/Scheduling.jpeg',
+    image: '/assets/image.png',
   },
   {
     icon: Zap,
@@ -180,72 +181,194 @@ const AboutSection = () => (
   </section>
 )
 
-const ServiceCard = ({ service, index }: { service: Service; index: number }) => {
+const ServiceCard = ({ service, index, onClick }: { service: Service; index: number; onClick: () => void }) => {
   const IconComponent = service.icon
   
   return (
     <motion.article
-      className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 group"
+      className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
       viewport={{ once: true }}
+      onClick={onClick}
+      whileHover={{ scale: 1.02 }}
     >
-      <div className="relative h-32 overflow-hidden">
+      <div className="relative h-64 md:h-72 lg:h-80 overflow-hidden">
         <img
           src={service.image}
           alt={service.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
-        <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm p-1.5 rounded-full">
-          <IconComponent size={16} />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg">
+          <IconComponent size={20} className="text-primary-600" />
         </div>
-      </div>
-      <div className="p-4">
-        <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">{service.title}</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">{service.description}</p>
-        <Link
-          to="/contact"
-          className="inline-flex items-center text-primary-600 dark:text-primary-400 font-medium hover:text-primary-700 dark:hover:text-primary-500 transition-colors text-sm"
-        >
-          Learn More →
-        </Link>
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <h3 className="text-xl md:text-2xl font-bold text-white mb-2 drop-shadow-lg">{service.title}</h3>
+        </div>
       </div>
     </motion.article>
   )
 }
 
-const ServicesSection = () => (
-  <section className="bg-white dark:bg-gray-900">
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <motion.div
-        className="text-center"
-        {...fadeInUp}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-      >
-        <h2 className="text-xl md:text-2xl font-semibold mb-3 text-gray-900 dark:text-white">Our Expertise & Key Services</h2>
-        <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-          Comprehensive engineering solutions tailored to your business requirements.
-        </p>
-      </motion.div>
+const ServiceModal = ({ service, isOpen, onClose }: { service: Service | null; isOpen: boolean; onClose: () => void }) => {
+  if (!service) return null
+  const IconComponent = service.icon
 
-      <motion.div 
-        className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-        variants={staggerContainer}
-        initial="initial"
-        whileInView="animate"
-        viewport={{ once: true }}
-      >
-        {SERVICES.map((service, index) => (
-          <motion.div key={service.title}>
-            <ServiceCard service={service} index={index} />
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+          />
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+          >
+            <motion.div
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative">
+                <div className="relative h-64 md:h-80 overflow-hidden">
+                  <img
+                    src={service.image}
+                    alt={service.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                  <button
+                    onClick={onClose}
+                    className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-colors shadow-lg"
+                    aria-label="Close modal"
+                  >
+                    <X size={20} className="text-gray-900" />
+                  </button>
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-lg">
+                        <IconComponent size={24} className="text-primary-600" />
+                      </div>
+                      <h2 className="text-2xl md:text-3xl font-bold text-white drop-shadow-lg">{service.title}</h2>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 md:p-8">
+                  <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+                    {service.description}
+                  </p>
+                  <div className="mt-6 flex flex-col sm:flex-row gap-4">
+                    <Link
+                      to="/contact"
+                      onClick={onClose}
+                      className="inline-flex items-center justify-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors"
+                    >
+                      Get in Touch
+                      <ArrowRight size={18} className="ml-2" />
+                    </Link>
+                    <button
+                      onClick={onClose}
+                      className="inline-flex items-center justify-center px-6 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
-        ))}
-      </motion.div>
-    </div>
-  </section>
-)
+        </>
+      )}
+    </AnimatePresence>
+  )
+}
+
+const ServicesSection = () => {
+  const [selectedService, setSelectedService] = useState<Service | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleCardClick = (service: Service) => {
+    setSelectedService(service)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false)
+    setTimeout(() => setSelectedService(null), 300)
+  }, [])
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        handleCloseModal()
+      }
+    }
+
+    if (isModalOpen) {
+      document.addEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'hidden'
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'unset'
+    }
+  }, [isModalOpen, handleCloseModal])
+
+  return (
+    <>
+      <section className="bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <motion.div
+            className="text-center mb-12"
+            {...fadeInUp}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-gray-900 dark:text-white">Our Expertise & Key Services</h2>
+            <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Comprehensive engineering solutions tailored to your business requirements.
+            </p>
+          </motion.div>
+
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+          >
+            {SERVICES.map((service, index) => (
+              <ServiceCard 
+                key={service.title}
+                service={service} 
+                index={index}
+                onClick={() => handleCardClick(service)}
+              />
+            ))}
+          </motion.div>
+        </div>
+      </section>
+      <ServiceModal 
+        service={selectedService} 
+        isOpen={isModalOpen} 
+        onClose={handleCloseModal}
+      />
+    </>
+  )
+}
 
 const CTASection = () => (
   <section className="px-4 py-6">

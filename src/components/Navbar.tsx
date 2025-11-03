@@ -64,18 +64,7 @@ export const Navbar = () => {
         { path: '/about#mission', label: 'Mission & Vision' }
       ]
     },
-    { 
-      path: '/services', 
-      label: 'Services',
-      subItems: [
-        { path: '/services#estimation', label: 'Estimation & Costing' },
-        { path: '/services#project-management', label: 'Project Management' },
-        { path: '/services#structural', label: 'Structural Design' },
-        { path: '/services#civil', label: 'Civil Engineering' },
-        { path: '/services#mechanical', label: 'Mechanical Engineering' },
-        { path: '/services#electrical', label: 'Electrical Systems' }
-      ]
-    },
+    { path: '/services', label: 'Services' },
     { 
       path: '/projects', 
       label: 'Portfolio'
