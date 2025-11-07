@@ -2,11 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { 
-  Calculator, 
-  Clock, 
   Building, 
   Users, 
-  FileText,
   Calendar,
   GraduationCap,
   ArrowRight,
@@ -141,24 +138,6 @@ export const Services = () => {
 
   const services: Service[] = [
     {
-      icon: Calculator,
-      title: 'Estimation & Costing',
-      description: 'Accurate cost analysis and detailed estimation to ensure feasibility and budget control.',
-      image: '/assets/Budget Estimation.jpeg',
-    },
-    {
-      icon: Clock,
-      title: 'Project Management',
-      description: 'Efficiently manage resources, timelines, and risks to deliver successful projects.',
-      image: '/assets/Project Management.jpg',
-    },
-    {
-      icon: FileText,
-      title: 'Detailed Project Report',
-      description: 'Comprehensive project documentation for planning, execution, and funding approvals.',
-      image: '/assets/DPR.jpeg',
-    },
-    {
       icon: Building,
       title: 'Structural Design & Analysis',
       description: 'Safe and optimized structural designs using advanced analysis techniques and tools.',
@@ -243,41 +222,6 @@ export const Services = () => {
         isOpen={isModalOpen} 
         onClose={handleCloseModal}
       />
-
-      {/* CTA Section */}
-      <section className="bg-primary-50 dark:bg-gray-800 py-8">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white mb-3">
-              Ready to Start Your Project?
-            </h2>
-            <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
-              Get in touch with our team to discuss your engineering requirements and discover how we can help bring your vision to life.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                to="/contact"
-                className="btn-primary text-sm px-4 py-2 inline-flex items-center justify-center"
-              >
-                Contact Us Today
-                <ArrowRight size={16} />
-              </Link>
-              <Link
-                to="/projects"
-                className="btn-secondary text-sm px-4 py-2 inline-flex items-center justify-center"
-              >
-                View Our Portfolio
-                <ArrowRight size={16} />
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
     </div>
   )
 }

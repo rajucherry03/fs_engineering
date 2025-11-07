@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from '../lib/firebase'
+import { normalizeImageUrl } from '../utils/imageUtils'
+import ImageWithFallback from '../components/ImageWithFallback'
 import { 
-  Calculator, 
-  Clock, 
   Building, 
   Users, 
-  Wrench, 
-  Zap,
+  Calendar,
+  GraduationCap,
   ArrowRight,
   Star,
   LucideIcon,
@@ -22,43 +24,46 @@ interface Service {
   image: string
 }
 
+interface Project {
+  id: string
+  title: string
+  description: string
+  image: string
+  category: string
+  featured: boolean
+}
+
 // Constants
 const SERVICES: Service[] = [
   {
-    icon: Calculator,
-    title: 'Estimation & Costing',
-    description: 'Accurate cost analysis and detailed estimation to ensure feasibility and budget control.',
-    image: '/assets/Budget Estimation.jpeg',
-  },
-  {
-    icon: Clock,
-    title: 'Project Management',
-    description: 'Comprehensive oversight from initiation to completion, ensuring projects are on time and within budget.',
-    image: '/assets/Project Management.jpg',
-  },
-  {
     icon: Building,
-    title: 'Structural Design',
-    description: 'Innovative and safe structural designs for diverse building and infrastructure projects.',
+    title: 'Structural Design & Analysis',
+    description: 'Safe and optimized structural designs using advanced analysis techniques and tools.',
     image: '/assets/Structural 1.jpeg',
   },
   {
-    icon: Users,
-    title: 'Civil Engineering',
-    description: 'Expertise in infrastructure development, land use, and environmental planning.',
+    icon: Building,
+    title: '2D, 3D Architectural Plans & Elevations',
+    description: 'Creative and technical design solutions with detailed 2D drawings and 3D visualizations.',
     image: '/assets/2d planning.png',
   },
   {
-    icon: Wrench,
-    title: 'Mechanical Engineering',
-    description: 'Design and analysis of mechanical systems for performance and efficiency.',
+    icon: Calendar,
+    title: 'Project Planning & Scheduling',
+    description: 'Strategic timelines and schedules to ensure smooth execution and on-time delivery.',
     image: '/assets/image.png',
   },
   {
-    icon: Zap,
-    title: 'Electrical Systems',
-    description: 'Advanced electrical design, distribution, and energy-efficient systems.',
+    icon: GraduationCap,
+    title: 'Training on Design & PM Software',
+    description: 'Hands-on training in industry-standard design and project management tools and software.',
     image: '/assets/Training 2.jpeg',
+  },
+  {
+    icon: Users,
+    title: 'Human Resources',
+    description: 'Efficient HR services including recruitment, training, and workforce management for project success.',
+    image: '/assets/HumanResource.jpeg',
   },
 ]
 
@@ -498,12 +503,231 @@ const TestimonialsSection = () => (
   </section>
 )
 
+// Portfolio Section Component
+const PortfolioSection = () => {
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true)
+        const projectsCollection = collection(db, 'projects')
+        const projectsSnapshot = await getDocs(projectsCollection)
+        const projectsData = projectsSnapshot.docs.map(doc => {
+          const data = doc.data()
+          return {
+            id: doc.id,
+            title: data.title || '',
+            description: data.description || '',
+            image: data.image || '',
+            category: data.category || '',
+            featured: data.featured || false
+          }
+        }) as Project[]
+        
+        // Sort by featured first, then by createdAt (newest first)
+        projectsData.sort((a, b) => {
+          if (a.featured && !b.featured) return -1
+          if (!a.featured && b.featured) return 1
+          return 0
+        })
+        
+        // Normalize image URLs and take only first 6 projects
+        const projectsWithNormalizedImages = await Promise.all(
+          projectsData.slice(0, 6).map(async (project) => {
+            if (project.image && typeof project.image === 'string') {
+              const imageValue = project.image.trim()
+              try {
+                const normalizedUrl = await normalizeImageUrl(imageValue)
+                if (normalizedUrl && (normalizedUrl.startsWith('http') || normalizedUrl.startsWith('/') || normalizedUrl.startsWith('data:'))) {
+                  return { ...project, image: normalizedUrl }
+                }
+              } catch (error) {
+                console.warn(`Failed to normalize image for project ${project.id}:`, error)
+              }
+            }
+            return { ...project, image: project.image || null }
+          })
+        )
+        
+        setProjects(projectsWithNormalizedImages)
+      } catch (error) {
+        console.error('Error fetching projects:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProjects()
+  }, [])
+
+  const handleImageClick = (imageUrl: string) => {
+    setSelectedImage(imageUrl)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false)
+    setTimeout(() => setSelectedImage(null), 300)
+  }, [])
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        handleCloseModal()
+      }
+    }
+
+    if (isModalOpen) {
+      document.addEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'hidden'
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'unset'
+    }
+  }, [isModalOpen, handleCloseModal])
+
+  return (
+    <>
+      <section className="py-12 bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-gray-900 dark:text-white">Our Portfolio</h2>
+            <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Explore some of our recent engineering projects and see how we bring visions to life.
+            </p>
+          </motion.div>
+
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            </div>
+          ) : projects.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600 dark:text-gray-300">No projects to display yet.</p>
+            </div>
+          ) : (
+            <>
+              <motion.div 
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+                variants={staggerContainer}
+                initial="initial"
+                whileInView="animate"
+                viewport={{ once: true }}
+              >
+                {projects.map((project, index) => (
+                  <motion.div
+                    key={project.id}
+                    className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    whileHover={{ scale: 1.02 }}
+                    onClick={() => project.image && handleImageClick(project.image)}
+                  >
+                    <div className="relative h-64 overflow-hidden">
+                      <ImageWithFallback
+                        src={project.image}
+                        alt={project.title || 'Project image'}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      {project.featured && (
+                        <div className="absolute top-4 left-4">
+                          <span className="px-3 py-1 bg-primary-600 text-white text-xs font-bold rounded-full">
+                            Featured
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+              
+              <motion.div
+                className="text-center mt-8"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                viewport={{ once: true }}
+              >
+                <Link
+                  to="/projects"
+                  className="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  View All Projects
+                  <ArrowRight size={18} className="ml-2" />
+                </Link>
+              </motion.div>
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* Image Modal */}
+      <AnimatePresence>
+        {isModalOpen && selectedImage && (
+          <>
+            <motion.div
+              className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleCloseModal}
+            />
+            <motion.div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleCloseModal}
+            >
+              <motion.div
+                className="relative max-w-[95vw] max-h-[95vh]"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  onClick={handleCloseModal}
+                  className="absolute -top-12 right-0 bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-colors shadow-lg z-10"
+                  aria-label="Close modal"
+                >
+                  <X size={24} className="text-gray-900" />
+                </button>
+                <img
+                  src={selectedImage}
+                  alt="Full size project image"
+                  className="max-w-full max-h-[95vh] w-auto h-auto object-contain"
+                />
+              </motion.div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
+
 export const Home = () => {
   return (
     <div className="min-h-screen">
       <HeroSection />
       <AboutSection />
       <ServicesSection />
+      <PortfolioSection />
       <CTASection />
     </div>
   )

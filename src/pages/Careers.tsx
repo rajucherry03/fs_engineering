@@ -47,7 +47,7 @@ export const Careers = () => {
     {
       icon: Users,
       title: 'Team Environment',
-      description: 'Collaborative work culture with experienced professionals.',
+      description: 'Collaborative work environment with experienced professionals.',
     },
     {
       icon: Clock,

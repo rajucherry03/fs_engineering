@@ -69,15 +69,7 @@ export const Navbar = () => {
       path: '/projects', 
       label: 'Portfolio'
     },
-    { 
-      path: '/careers', 
-      label: 'Careers',
-      subItems: [
-        { path: '/careers#openings', label: 'Job Openings' },
-        { path: '/careers#benefits', label: 'Benefits' },
-        { path: '/careers#culture', label: 'Company Culture' }
-      ]
-    },
+    { path: '/careers', label: 'Careers' },
     { path: '/contact', label: 'Contact Us' },
     { 
       path: '/others', 

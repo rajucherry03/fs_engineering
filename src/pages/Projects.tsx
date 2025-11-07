@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Calendar, Clock, DollarSign, Users, Star, X } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { DollarSign, Users, X } from 'lucide-react'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { normalizeImageUrl } from '../utils/imageUtils'
@@ -28,6 +28,9 @@ export const Projects = () => {
   const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalFlipped, setIsModalFlipped] = useState(false)
 
   // Fetch projects from Firebase
   useEffect(() => {
@@ -63,31 +66,32 @@ export const Projects = () => {
         // Normalize image URLs for all projects in parallel for better performance
         const projectsWithNormalizedImages = await Promise.all(
           projectsData.map(async (project) => {
-            if (project.image) {
+            // Try to normalize all images, regardless of format
+            if (project.image && typeof project.image === 'string') {
+              const imageValue = project.image.trim()
+              
+              // Always try to normalize the image URL first
               try {
-                const normalizedUrl = await normalizeImageUrl(project.image)
-                return { ...project, image: normalizedUrl || project.image }
+                const normalizedUrl = await normalizeImageUrl(imageValue)
+                // Use normalized URL if it's valid (starts with http, /, or data:)
+                if (normalizedUrl && (normalizedUrl.startsWith('http') || normalizedUrl.startsWith('/') || normalizedUrl.startsWith('data:'))) {
+                  return { ...project, image: normalizedUrl }
+                } else {
+                  // If normalization returned null or invalid URL, set to null
+                  console.warn(`Invalid image URL for project ${project.id}: ${imageValue}`)
+                  return { ...project, image: null }
+                }
               } catch (error) {
                 console.warn(`Failed to normalize image for project ${project.id}:`, error)
-                return project
+                // Set to null if normalization fails
+                return { ...project, image: null }
               }
             }
-            return project
+            return { ...project, image: null }
           })
         )
         
         setProjects(projectsWithNormalizedImages)
-        
-        // Debug: Log sample project images
-        if (projectsWithNormalizedImages.length > 0) {
-          console.log('Sample project images:', projectsWithNormalizedImages.slice(0, 3).map(p => ({
-            id: p.id,
-            title: p.title,
-            image: p.image,
-            imageType: typeof p.image,
-            imageLength: p.image?.length
-          })))
-        }
       } catch (error) {
         console.error('Error fetching projects:', error)
         setError('Failed to load projects. Please try again.')
@@ -110,6 +114,41 @@ export const Projects = () => {
       return newSet
     })
   }
+
+  const handleImageClick = (e: React.MouseEvent, project: Project) => {
+    e.stopPropagation() // Prevent card flip when clicking image
+    setSelectedProject(project)
+    setIsModalOpen(true)
+    setIsModalFlipped(false)
+  }
+
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false)
+    setIsModalFlipped(false)
+    setTimeout(() => setSelectedProject(null), 300)
+  }, [])
+
+  const handleModalFlip = () => {
+    setIsModalFlipped(!isModalFlipped)
+  }
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        handleCloseModal()
+      }
+    }
+
+    if (isModalOpen) {
+      document.addEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'hidden'
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'unset'
+    }
+  }, [isModalOpen, handleCloseModal])
 
   return (
     <div className="min-h-screen pt-20">
@@ -161,28 +200,18 @@ export const Projects = () => {
                         style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}
                       >
                         <div className="relative w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-                          <ImageWithFallback
-                            src={project.image}
-                            alt={project.title}
-                            className="w-full h-full object-contain p-2"
-                            fallbackText={project.image ? 'Image Failed to Load' : 'No Image Available'}
-                          />
-                          {/* Overlay with title on hover */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
-                            <div className="p-4 w-full">
-                              <h3 className="text-white font-bold text-lg mb-1">{project.title}</h3>
-                              <p className="text-white/90 text-sm">{project.category}</p>
-                            </div>
-                          </div>
-                          {/* Status badge */}
-                          <div className="absolute top-3 right-3">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                              project.status === 'completed' ? 'bg-green-500 text-white' :
-                              project.status === 'ongoing' ? 'bg-blue-500 text-white' :
-                              'bg-yellow-500 text-white'
-                            }`}>
-                              {project.status}
-                            </span>
+                          <div
+                            className="w-full h-full cursor-zoom-in"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleImageClick(e, project)
+                            }}
+                          >
+                            <ImageWithFallback
+                              src={project.image}
+                              alt={project.title || 'Project image'}
+                              className="w-full h-full object-contain p-2"
+                            />
                           </div>
                         </div>
                       </div>
@@ -207,50 +236,6 @@ export const Projects = () => {
 
                           {/* Details Content */}
                           <div className="space-y-4">
-                            <div>
-                              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                                {project.title}
-                              </h3>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                                {project.description}
-                              </p>
-                            </div>
-
-                            {/* Project Info */}
-                            <div className="space-y-3">
-                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <Calendar size={16} />
-                                <span>{new Date(project.createdAt).toLocaleDateString()}</span>
-                              </div>
-
-                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <span className="font-semibold">Category:</span>
-                                <span className="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded text-xs font-medium">
-                                  {project.category}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Technologies */}
-                            {project.technologies && project.technologies.length > 0 && (
-                              <div>
-                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                  <Star size={16} className="text-primary-600" />
-                                  Technologies
-                                </h4>
-                                <div className="flex flex-wrap gap-2">
-                                  {project.technologies.map((tech) => (
-                                    <span
-                                      key={tech}
-                                      className="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 text-xs rounded-full font-medium"
-                                    >
-                                      {tech}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
                             {/* Project Analysis */}
                             {project.analysis && (
                               <div>
@@ -260,19 +245,6 @@ export const Projects = () => {
                                 </h4>
                                 <p className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
                                   {project.analysis}
-                                </p>
-                              </div>
-                            )}
-
-                            {/* Technical Structure */}
-                            {project.structure && (
-                              <div>
-                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                  <Clock size={16} className="text-primary-600" />
-                                  Technical Structure
-                                </h4>
-                                <p className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
-                                  {project.structure}
                                 </p>
                               </div>
                             )}
@@ -319,6 +291,159 @@ export const Projects = () => {
         </div>
       </section>
 
+      {/* Image Modal with Flip */}
+      <AnimatePresence>
+        {isModalOpen && selectedProject && (
+          <>
+            <motion.div
+              className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleCloseModal}
+            />
+            <motion.div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleCloseModal}
+            >
+              <motion.div
+                className="relative w-[95vw] h-[95vh] max-w-[95vw] max-h-[95vh] perspective-1000"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div
+                  className={`relative w-full h-full preserve-3d transition-transform duration-700 ${
+                    isModalFlipped ? 'rotate-y-180' : ''
+                  }`}
+                  style={{ transformStyle: 'preserve-3d' }}
+                >
+                  {/* Front - Image */}
+                  <div
+                    className="absolute inset-0 w-full h-full backface-hidden bg-black rounded-xl shadow-2xl overflow-hidden"
+                    style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}
+                  >
+                    <div className="relative w-full h-full flex items-center justify-center overflow-auto">
+                      <img
+                        src={selectedProject.image}
+                        alt={selectedProject.title || 'Project image'}
+                        className="object-contain"
+                        style={{ 
+                          maxWidth: '100%', 
+                          maxHeight: '100%',
+                          width: 'auto',
+                          height: 'auto',
+                          display: 'block'
+                        }}
+                      />
+                    </div>
+                    <button
+                      onClick={handleCloseModal}
+                      className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-colors shadow-lg z-10"
+                      aria-label="Close modal"
+                    >
+                      <X size={24} className="text-gray-900" />
+                    </button>
+                    <button
+                      onClick={handleModalFlip}
+                      className="absolute bottom-4 right-4 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors shadow-lg z-10 flex items-center gap-2"
+                    >
+                      View Details
+                    </button>
+                  </div>
+
+                  {/* Back - Details */}
+                  <div
+                    className="absolute inset-0 w-full h-full backface-hidden bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden p-6 overflow-y-auto"
+                    style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                  >
+                    <button
+                      onClick={handleCloseModal}
+                      className="absolute top-4 right-4 bg-white/90 dark:bg-gray-700 p-2 rounded-full hover:bg-white dark:hover:bg-gray-600 transition-colors shadow-lg z-10"
+                      aria-label="Close modal"
+                    >
+                      <X size={24} className="text-gray-900 dark:text-gray-100" />
+                    </button>
+                    <button
+                      onClick={handleModalFlip}
+                      className="absolute bottom-4 right-4 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors shadow-lg z-10"
+                    >
+                      Back to Image
+                    </button>
+                    
+                    <div className="space-y-4 pr-4">
+                      <div>
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                          {selectedProject.title}
+                        </h3>
+                        {selectedProject.description && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                            {selectedProject.description}
+                          </p>
+                        )}
+                      </div>
+
+                      {selectedProject.category && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                          <span className="font-semibold">Category:</span>
+                          <span className="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded text-xs font-medium">
+                            {selectedProject.category}
+                          </span>
+                        </div>
+                      )}
+
+                      {selectedProject.analysis && (
+                        <div>
+                          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                            <Users size={16} className="text-primary-600" />
+                            Analysis
+                          </h4>
+                          <p className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
+                            {selectedProject.analysis}
+                          </p>
+                        </div>
+                      )}
+
+                      {selectedProject.estimation && (
+                        <div>
+                          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                            <DollarSign size={16} className="text-primary-600" />
+                            Estimation
+                          </h4>
+                          <div className="bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-800 p-3 rounded-lg">
+                            <p className="text-sm text-primary-800 dark:text-primary-200 font-medium">
+                              {selectedProject.estimation}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-2 gap-2 pt-2">
+                        <div className="bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg text-center">
+                          <div className="text-lg font-bold text-primary-600 dark:text-primary-400">
+                            {selectedProject.views || 0}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400">Views</div>
+                        </div>
+                        <div className="bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg text-center">
+                          <div className="text-lg font-bold text-primary-600 dark:text-primary-400">
+                            {selectedProject.technologies?.length || 0}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400">Tech Stack</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

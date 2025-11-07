@@ -1,7 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { CheckCircle, Users, Award, Target, ArrowRight, Phone, Mail, MapPin } from 'lucide-react'
+import { CheckCircle, Users, Award, Target, ArrowRight, Phone, Mail } from 'lucide-react'
 
 export const About = () => {
   const features = [
@@ -202,7 +202,7 @@ export const About = () => {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
             <motion.div
               className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md text-center"
               initial={{ opacity: 0, y: 20 }}
@@ -229,20 +229,6 @@ export const About = () => {
               </div>
               <h3 className="text-base font-semibold mb-2 dark:text-white">Email</h3>
               <p className="text-sm text-gray-600 dark:text-gray-300">chilakapatil247@gmail.com</p>
-            </motion.div>
-
-            <motion.div
-              className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md text-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              <div className="bg-primary-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 text-primary-600">
-                <MapPin size={24} />
-              </div>
-              <h3 className="text-base font-semibold mb-2 dark:text-white">Location</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300">Hyderabad, India</p>
             </motion.div>
           </div>
 
