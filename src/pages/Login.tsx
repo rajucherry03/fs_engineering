@@ -183,13 +183,35 @@ export const Login = () => {
         uid: userCredential.user.uid
       })
       
-      if (isLogin) {
-        console.log('🔵 Login mode - skipping email')
-        alert('Login successful!')
-        navigate('/')
+      // Check if this is a new user (first time registration)
+      // For new users, creationTime and lastSignInTime will be very close (within 5 seconds)
+      const creationTime = userCredential.user.metadata.creationTime
+      const lastSignInTime = userCredential.user.metadata.lastSignInTime
+      
+      let isNewUser = false
+      if (creationTime && lastSignInTime) {
+        const creationTimestamp = new Date(creationTime).getTime()
+        const lastSignInTimestamp = new Date(lastSignInTime).getTime()
+        const timeDifference = Math.abs(creationTimestamp - lastSignInTimestamp)
+        
+        // If creation and last sign-in are within 5 seconds, it's a new user
+        isNewUser = timeDifference < 5000
+        
+        console.log('User registration check:', {
+          creationTime,
+          lastSignInTime,
+          timeDifference: `${timeDifference}ms`,
+          isNewUser
+        })
       } else {
-        // When in sign-up mode, always send registration email
-        console.log('🔵 Google Sign-up mode - Preparing to send registration email...')
+        // If metadata is missing, check if we're in sign-up mode
+        isNewUser = !isLogin
+        console.log('Metadata missing, using isLogin mode:', { isLogin, isNewUser })
+      }
+      
+      // Send registration email for new users (regardless of login/signup mode)
+      if (isNewUser) {
+        console.log('🔵 New Google user detected - Sending registration email...')
         console.log('User details:', {
           displayName: userCredential.user.displayName,
           email: userCredential.user.email,
@@ -198,7 +220,7 @@ export const Login = () => {
           lastSignInTime: userCredential.user.metadata.lastSignInTime
         })
         
-        // Send registration email (don't block registration if email fails)
+        // Send registration email (don't block authentication if email fails)
         try {
           console.log('📧 Calling sendRegistrationEmail for Google user...')
           const emailResult = await sendRegistrationEmail({
@@ -217,7 +239,7 @@ export const Login = () => {
             }),
             userUid: userCredential.user.uid
           })
-          console.log('✅ Google registration email process completed', emailResult)
+          console.log('✅ Google registration email sent successfully!', emailResult)
         } catch (error: any) {
           console.error('❌ Failed to send registration email for Google user (non-blocking):', error)
           console.error('Error details:', {
@@ -227,10 +249,17 @@ export const Login = () => {
             stack: error?.stack
           })
         }
-        
-        alert('Account created successfully!')
-        navigate('/')
+      } else {
+        console.log('🔵 Existing Google user - No registration email needed')
       }
+      
+      // Show success message and navigate
+      if (isLogin) {
+        alert('Login successful!')
+      } else {
+        alert('Account created successfully!')
+      }
+      navigate('/')
     } catch (error: any) {
       console.error('❌ Google authentication error:', error)
       const authError = error as AuthError
