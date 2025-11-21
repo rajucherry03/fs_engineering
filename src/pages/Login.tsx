@@ -182,7 +182,7 @@ export const Login = () => {
       } else {
         // When in sign-up mode, always send registration email
         // Even if user already exists, they're attempting to register
-        console.log('Google Sign-up mode - Sending registration email...')
+        console.log('🔵 Google Sign-up mode - Preparing to send registration email...')
         console.log('User details:', {
           displayName: userCredential.user.displayName,
           email: userCredential.user.email,
@@ -192,24 +192,29 @@ export const Login = () => {
         })
         
         // Send registration email (don't block registration if email fails)
-        sendRegistrationEmail({
-          userName: userCredential.user.displayName || 'Unknown',
-          userEmail: userCredential.user.email || 'Unknown',
-          userMobile: 'N/A (Google Registration)',
-          registrationMethod: 'google',
-          registrationDate: new Date().toLocaleString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            timeZoneName: 'short'
-          }),
-          userUid: userCredential.user.uid
-        }).catch((error) => {
+        try {
+          console.log('📧 Calling sendRegistrationEmail for Google user...')
+          await sendRegistrationEmail({
+            userName: userCredential.user.displayName || 'Unknown',
+            userEmail: userCredential.user.email || 'Unknown',
+            userMobile: 'N/A (Google Registration)',
+            registrationMethod: 'google',
+            registrationDate: new Date().toLocaleString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              timeZoneName: 'short'
+            }),
+            userUid: userCredential.user.uid
+          })
+          console.log('✅ Google registration email process completed')
+        } catch (error) {
           console.error('❌ Failed to send registration email for Google user (non-blocking):', error)
-        })
+          console.error('Error details:', error)
+        }
         
         alert('Account created successfully!')
         navigate('/')
