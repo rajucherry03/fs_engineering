@@ -173,15 +173,22 @@ export const Login = () => {
     setAuthError('')
     
     try {
+      console.log('🔵 Starting Google authentication...', { isLogin })
       const provider = new GoogleAuthProvider()
       const userCredential = await signInWithPopup(auth, provider)
       
+      console.log('✅ Google authentication successful!', {
+        email: userCredential.user.email,
+        displayName: userCredential.user.displayName,
+        uid: userCredential.user.uid
+      })
+      
       if (isLogin) {
+        console.log('🔵 Login mode - skipping email')
         alert('Login successful!')
         navigate('/')
       } else {
         // When in sign-up mode, always send registration email
-        // Even if user already exists, they're attempting to register
         console.log('🔵 Google Sign-up mode - Preparing to send registration email...')
         console.log('User details:', {
           displayName: userCredential.user.displayName,
@@ -194,7 +201,7 @@ export const Login = () => {
         // Send registration email (don't block registration if email fails)
         try {
           console.log('📧 Calling sendRegistrationEmail for Google user...')
-          await sendRegistrationEmail({
+          const emailResult = await sendRegistrationEmail({
             userName: userCredential.user.displayName || 'Unknown',
             userEmail: userCredential.user.email || 'Unknown',
             userMobile: 'N/A (Google Registration)',
@@ -210,16 +217,22 @@ export const Login = () => {
             }),
             userUid: userCredential.user.uid
           })
-          console.log('✅ Google registration email process completed')
-        } catch (error) {
+          console.log('✅ Google registration email process completed', emailResult)
+        } catch (error: any) {
           console.error('❌ Failed to send registration email for Google user (non-blocking):', error)
-          console.error('Error details:', error)
+          console.error('Error details:', {
+            message: error?.message,
+            text: error?.text,
+            status: error?.status,
+            stack: error?.stack
+          })
         }
         
         alert('Account created successfully!')
         navigate('/')
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('❌ Google authentication error:', error)
       const authError = error as AuthError
       let errorMessage = 'An error occurred with Google authentication.'
       
@@ -237,6 +250,8 @@ export const Login = () => {
           errorMessage = authError.message || errorMessage
       }
       
+      console.error('Auth error code:', authError.code)
+      console.error('Auth error message:', errorMessage)
       setAuthError(errorMessage)
     } finally {
       setIsGoogleLoading(false)
