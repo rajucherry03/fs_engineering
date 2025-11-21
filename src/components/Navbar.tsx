@@ -246,9 +246,15 @@ export const Navbar = () => {
                       
                       <div className="px-2 py-1">
                         <button
-                          onClick={() => {
-                            logout()
-                            handleProfileClose()
+                          onClick={async (e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            try {
+                              await logout()
+                              handleProfileClose()
+                            } catch (error) {
+                              console.error('Logout error:', error)
+                            }
                           }}
                           className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-colors duration-200"
                         >
@@ -368,7 +374,7 @@ export const Navbar = () => {
                     </button>
                     
                     {activeDropdown === 'profile' && (
-                      <div className="ml-4 space-y-2">
+                      <div className="ml-4 space-y-2 relative z-50">
                         <div className="px-3 py-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                           <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Username</p>
                           <p className="text-sm text-gray-900 dark:text-gray-100">
@@ -382,12 +388,24 @@ export const Navbar = () => {
                           </p>
                         </div>
                         <button
-                          onClick={() => {
-                            logout()
-                            setIsOpen(false)
-                            handleDropdownClose()
+                          type="button"
+                          onTouchStart={async (e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
                           }}
-                          className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors duration-200"
+                          onClick={async (e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            try {
+                              await logout()
+                              setIsOpen(false)
+                              handleDropdownClose()
+                            } catch (error) {
+                              console.error('Logout error:', error)
+                            }
+                          }}
+                          className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 active:bg-red-100 dark:active:bg-red-900/40 rounded-lg transition-colors duration-200 touch-manipulation relative z-50"
+                          style={{ WebkitTapHighlightColor: 'transparent' }}
                         >
                           <LogOut size={16} />
                           <span>Logout</span>
@@ -410,10 +428,10 @@ export const Navbar = () => {
         )}
       </div>
 
-      {/* Overlay for dropdown */}
+      {/* Overlay for dropdown - only for desktop */}
       {(activeDropdown || isProfileOpen) && (
         <div 
-          className="fixed inset-0 z-40" 
+          className="hidden lg:block fixed inset-0 z-40" 
           onClick={() => {
             handleDropdownClose()
             handleProfileClose()

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { Mail, Lock, Eye, EyeOff, UserPlus } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, UserPlus, Phone } from 'lucide-react'
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
@@ -11,6 +11,7 @@ import {
   AuthError 
 } from 'firebase/auth'
 import { auth } from '../lib/firebase'
+import { sendRegistrationEmail } from '../utils/emailService'
 
 export const Login = () => {
   const navigate = useNavigate()
@@ -19,6 +20,7 @@ export const Login = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    mobile: '',
     password: '',
     confirmPassword: '',
   })
@@ -71,6 +73,11 @@ export const Login = () => {
       if (!formData.name) {
         newErrors.name = 'Name is required'
       }
+      if (!formData.mobile) {
+        newErrors.mobile = 'Mobile number is required'
+      } else if (!/^[0-9]{10}$/.test(formData.mobile.replace(/\D/g, ''))) {
+        newErrors.mobile = 'Please enter a valid 10-digit mobile number'
+      }
       if (!formData.confirmPassword) {
         newErrors.confirmPassword = 'Please confirm your password'
       } else if (formData.password !== formData.confirmPassword) {
@@ -104,6 +111,25 @@ export const Login = () => {
         await updateProfile(userCredential.user, {
           displayName: formData.name
         })
+        
+        // Send registration notification email
+        await sendRegistrationEmail({
+          userName: formData.name || userCredential.user.displayName || 'Unknown',
+          userEmail: formData.email,
+          userMobile: formData.mobile || 'N/A',
+          registrationMethod: 'email',
+          registrationDate: new Date().toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            timeZoneName: 'short'
+          }),
+          userUid: userCredential.user.uid
+        })
+        
         alert('Registration successful!')
         navigate('/')
       }
@@ -146,12 +172,40 @@ export const Login = () => {
     
     try {
       const provider = new GoogleAuthProvider()
+      const userCredential = await signInWithPopup(auth, provider)
+      
       if (isLogin) {
-        await signInWithPopup(auth, provider)
         alert('Login successful!')
         navigate('/')
       } else {
-        await signInWithPopup(auth, provider)
+        // Check if this is a new user by comparing creation time and last sign-in time
+        // If they're the same (or very close), it's a new registration
+        const creationTime = userCredential.user.metadata.creationTime
+        const lastSignInTime = userCredential.user.metadata.lastSignInTime
+        
+        const isNewUser = creationTime && lastSignInTime && 
+          Math.abs(new Date(creationTime).getTime() - new Date(lastSignInTime).getTime()) < 10000
+        
+        // Send registration email only for new users
+        if (isNewUser) {
+          await sendRegistrationEmail({
+            userName: userCredential.user.displayName || 'Unknown',
+            userEmail: userCredential.user.email || 'Unknown',
+            userMobile: 'N/A (Google Registration)',
+            registrationMethod: 'google',
+            registrationDate: new Date().toLocaleString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              timeZoneName: 'short'
+            }),
+            userUid: userCredential.user.uid
+          })
+        }
+        
         alert('Account created successfully!')
         navigate('/')
       }
@@ -196,9 +250,19 @@ export const Login = () => {
 
   const toggleMode = () => {
     setIsLogin(!isLogin)
-    setFormData({ name: '', email: '', password: '', confirmPassword: '' })
+    setFormData({ name: '', email: '', mobile: '', password: '', confirmPassword: '' })
     setErrors({})
     setAuthError('')
+  }
+
+  const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '') // Remove non-digits
+    if (value.length <= 10) {
+      setFormData(prev => ({ ...prev, mobile: value }))
+      if (errors.mobile) {
+        setErrors(prev => ({ ...prev, mobile: '' }))
+      }
+    }
   }
 
   return (
@@ -313,6 +377,32 @@ export const Login = () => {
                 <p className="mt-1 text-xs text-red-600">{errors.email}</p>
               )}
             </div>
+
+            {!isLogin && (
+              <div>
+                <label htmlFor="mobile" className="block text-sm font-medium text-gray-700 mb-1">
+                  Mobile Number
+                </label>
+                <div className="relative">
+                  <input
+                    id="mobile"
+                    name="mobile"
+                    type="tel"
+                    value={formData.mobile}
+                    onChange={handleMobileChange}
+                    className="input-field pl-10"
+                    placeholder="Enter your 10-digit mobile number"
+                    maxLength={10}
+                  />
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <Phone size={16} />
+                  </div>
+                </div>
+                {errors.mobile && (
+                  <p className="mt-1 text-xs text-red-600">{errors.mobile}</p>
+                )}
+              </div>
+            )}
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
