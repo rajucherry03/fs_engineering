@@ -112,8 +112,8 @@ export const Login = () => {
           displayName: formData.name
         })
         
-        // Send registration notification email
-        await sendRegistrationEmail({
+        // Send registration notification email (don't block registration if email fails)
+        sendRegistrationEmail({
           userName: formData.name || userCredential.user.displayName || 'Unknown',
           userEmail: formData.email,
           userMobile: formData.mobile || 'N/A',
@@ -128,6 +128,8 @@ export const Login = () => {
             timeZoneName: 'short'
           }),
           userUid: userCredential.user.uid
+        }).catch((error) => {
+          console.error('Registration email failed (non-blocking):', error)
         })
         
         alert('Registration successful!')
@@ -189,27 +191,25 @@ export const Login = () => {
           lastSignInTime: userCredential.user.metadata.lastSignInTime
         })
         
-        try {
-          await sendRegistrationEmail({
-            userName: userCredential.user.displayName || 'Unknown',
-            userEmail: userCredential.user.email || 'Unknown',
-            userMobile: 'N/A (Google Registration)',
-            registrationMethod: 'google',
-            registrationDate: new Date().toLocaleString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              timeZoneName: 'short'
-            }),
-            userUid: userCredential.user.uid
-          })
-          console.log('✅ Registration email sent successfully for Google user')
-        } catch (error) {
-          console.error('❌ Failed to send registration email for Google user:', error)
-        }
+        // Send registration email (don't block registration if email fails)
+        sendRegistrationEmail({
+          userName: userCredential.user.displayName || 'Unknown',
+          userEmail: userCredential.user.email || 'Unknown',
+          userMobile: 'N/A (Google Registration)',
+          registrationMethod: 'google',
+          registrationDate: new Date().toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            timeZoneName: 'short'
+          }),
+          userUid: userCredential.user.uid
+        }).catch((error) => {
+          console.error('❌ Failed to send registration email for Google user (non-blocking):', error)
+        })
         
         alert('Account created successfully!')
         navigate('/')

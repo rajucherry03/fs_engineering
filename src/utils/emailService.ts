@@ -31,21 +31,33 @@ export const sendRegistrationEmail = async (registrationData: RegistrationData):
     const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
 
     console.log('EmailJS Config Check:', {
-      serviceId: serviceId ? '✓ Set' : '✗ Missing',
-      templateId: templateId ? '✓ Set' : '✗ Missing',
-      publicKey: publicKey ? '✓ Set' : '✗ Missing'
+      serviceId: serviceId ? `✓ Set (${serviceId.substring(0, 10)}...)` : '✗ Missing',
+      templateId: templateId ? `✓ Set (${templateId})` : '✗ Missing',
+      publicKey: publicKey ? `✓ Set (${publicKey.substring(0, 10)}...)` : '✗ Missing'
+    })
+    
+    // Log actual values for debugging (first few characters only for security)
+    console.log('EmailJS Environment Variables:', {
+      VITE_EMAILJS_SERVICE_ID: import.meta.env.VITE_EMAILJS_SERVICE_ID ? 'Present' : 'Missing',
+      VITE_EMAILJS_TEMPLATE_ID: import.meta.env.VITE_EMAILJS_TEMPLATE_ID ? 'Present' : 'Missing (using fallback)',
+      VITE_EMAILJS_PUBLIC_KEY: import.meta.env.VITE_EMAILJS_PUBLIC_KEY ? 'Present' : 'Missing'
     })
 
     // Check if EmailJS is configured
-    if (!serviceId || !templateId || !publicKey) {
+    if (!serviceId || !publicKey) {
       console.error('❌ EmailJS is not configured. Registration email will not be sent.')
-      console.error('Missing values:', {
+      console.error('Missing required values:', {
         serviceId: !serviceId,
-        templateId: !templateId,
         publicKey: !publicKey
       })
-      console.error('Please set VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, and VITE_EMAILJS_PUBLIC_KEY in your .env file')
-      console.error('Make sure to restart your dev server after adding .env file!')
+      console.error('Please set VITE_EMAILJS_SERVICE_ID and VITE_EMAILJS_PUBLIC_KEY in Vercel environment variables')
+      console.error('Template ID will use fallback:', templateId)
+      return
+    }
+    
+    // Template ID has fallback, so it should always be available
+    if (!templateId) {
+      console.error('❌ Template ID is missing even with fallback')
       return
     }
 
