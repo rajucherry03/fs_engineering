@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { 
   Building, 
   Users, 
@@ -8,14 +8,18 @@ import {
   GraduationCap,
   ArrowRight,
   X,
-  LucideIcon
+  LucideIcon,
+  DollarSign,
+  FileText,
+  Briefcase
 } from 'lucide-react'
 
 interface Service {
   icon: LucideIcon
   title: string
   description: string
-  image: string
+  image?: string
+  redirectToContact?: boolean
 }
 
 const ServiceCard = ({ service, index, onClick }: { service: Service; index: number; onClick: () => void }) => {
@@ -32,17 +36,31 @@ const ServiceCard = ({ service, index, onClick }: { service: Service; index: num
       whileHover={{ scale: 1.02 }}
     >
       <div className="relative h-64 md:h-72 lg:h-80 overflow-hidden">
-        <img
-          src={service.image}
-          alt={service.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+        {service.image ? (
+          <>
+            <img
+              src={service.image}
+              alt={service.title}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+          </>
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-primary-500 to-primary-700 dark:from-primary-600 dark:to-primary-800 flex items-center justify-center">
+            <div className="text-center p-6">
+              <div className="bg-white/20 backdrop-blur-sm p-4 rounded-full inline-block mb-4">
+                <IconComponent size={48} className="text-white" />
+              </div>
+            </div>
+          </div>
+        )}
         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg">
           <IconComponent size={20} className="text-primary-600" />
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4">
-          <h3 className="text-xl md:text-2xl font-bold text-white mb-2 drop-shadow-lg">{service.title}</h3>
+          <h3 className={`text-xl md:text-2xl font-bold mb-2 ${service.image ? 'text-white drop-shadow-lg' : 'text-white drop-shadow-lg'}`}>
+            {service.title}
+          </h3>
         </div>
       </div>
     </motion.article>
@@ -80,12 +98,24 @@ const ServiceModal = ({ service, isOpen, onClose }: { service: Service | null; i
             >
               <div className="relative">
                 <div className="relative h-64 md:h-80 overflow-hidden">
-                  <img
-                    src={service.image}
-                    alt={service.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                  {service.image ? (
+                    <>
+                      <img
+                        src={service.image}
+                        alt={service.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                    </>
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary-500 to-primary-700 dark:from-primary-600 dark:to-primary-800 flex items-center justify-center">
+                      <div className="text-center p-6">
+                        <div className="bg-white/20 backdrop-blur-sm p-6 rounded-full inline-block">
+                          <IconComponent size={64} className="text-white" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <button
                     onClick={onClose}
                     className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-colors shadow-lg"
@@ -135,6 +165,7 @@ const ServiceModal = ({ service, isOpen, onClose }: { service: Service | null; i
 export const Services = () => {
   const [selectedService, setSelectedService] = useState<Service | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const navigate = useNavigate()
 
   const services: Service[] = [
     {
@@ -167,9 +198,33 @@ export const Services = () => {
       description: 'Efficient HR services including recruitment, training, and workforce management for project success.',
       image: '/assets/HumanResource.jpeg',
     },
+    {
+      icon: DollarSign,
+      title: 'Estimation & Costing',
+      description: 'Accurate assessment of project quantities and costs ensures effective budgeting and financial control.',
+      redirectToContact: true,
+    },
+    {
+      icon: FileText,
+      title: 'Detailed Project Report (DPR)',
+      description: 'Comprehensive documentation covering technical, financial, and operational details for clear project planning.',
+      redirectToContact: true,
+    },
+    {
+      icon: Briefcase,
+      title: 'Project Management',
+      description: 'Systematic coordination of resources, schedules, and processes to achieve defined project objectives.',
+      redirectToContact: true,
+    },
   ]
 
   const handleCardClick = (service: Service) => {
+    // If service has redirectToContact flag, redirect to contact page
+    if (service.redirectToContact) {
+      navigate('/contact')
+      return
+    }
+    // Otherwise, open modal as usual
     setSelectedService(service)
     setIsModalOpen(true)
   }
@@ -200,6 +255,56 @@ export const Services = () => {
 
   return (
     <div className="min-h-screen pt-20">
+      {/* Vision & Mission Section */}
+      <section className="py-12 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-7xl mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              Our Vision & Mission
+            </h1>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            {/* Vision */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8"
+            >
+              <h2 className="text-2xl md:text-3xl font-bold text-primary-600 dark:text-primary-400 mb-4">
+                Vision
+              </h2>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg">
+                To create sustainable, safe, and resilient infrastructure that enhances quality of life and preserves the environment for future generations.
+              </p>
+            </motion.div>
+
+            {/* Mission */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8"
+            >
+              <h2 className="text-2xl md:text-3xl font-bold text-primary-600 dark:text-primary-400 mb-4">
+                Mission
+              </h2>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg">
+                To serve clients and communities through eco-conscious design, precise engineering, and responsible project execution—ensuring every structure we plan stands as a symbol of sustainability and integrity.
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
       {/* Services Section */}
       <section className="py-12">

@@ -73,8 +73,8 @@ export const Footer = () => {
       <div className="max-w-6xl mx-auto mt-8 border-t border-gray-300 dark:border-gray-700 pt-4 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 dark:text-gray-400 px-6">
         <p>© 2025 FullStack Engineering Consultancy Services. All rights reserved.</p>
         <div className="flex space-x-6 mt-2 md:mt-0">
-          <a href="#" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Privacy Policy</a>
-          <a href="#" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Terms of Service</a>
+          <Link to="/company-policy" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Privacy Policy</Link>
+          <Link to="/terms-and-conditions" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Terms of Service</Link>
         </div>
       </div>
     </footer>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DollarSign, Users, X } from 'lucide-react'
-import { collection, getDocs } from 'firebase/firestore'
+import { collection, getDocs, query, orderBy } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { normalizeImageUrl } from '../utils/imageUtils'
 import ImageWithFallback from '../components/ImageWithFallback'
@@ -21,6 +21,7 @@ interface Project {
   views: number
   createdAt: string
   updatedAt: string
+  sortOrder?: number
 }
 
 export const Projects = () => {
@@ -39,7 +40,9 @@ export const Projects = () => {
         setLoading(true)
         setError(null)
         const projectsCollection = collection(db, 'projects')
-        const projectsSnapshot = await getDocs(projectsCollection)
+        // Query projects ordered by sortOrder (ascending)
+        const projectsQuery = query(projectsCollection, orderBy('sortOrder', 'asc'))
+        const projectsSnapshot = await getDocs(projectsQuery)
         const projectsData = projectsSnapshot.docs.map(doc => {
           const data = doc.data()
           return {
@@ -56,12 +59,13 @@ export const Projects = () => {
             featured: data.featured || false,
             views: data.views || 0,
             createdAt: data.createdAt || new Date().toISOString(),
-            updatedAt: data.updatedAt || new Date().toISOString()
+            updatedAt: data.updatedAt || new Date().toISOString(),
+            sortOrder: data.sortOrder !== undefined ? data.sortOrder : Number.MAX_SAFE_INTEGER
           }
         }) as Project[]
         
-        // Sort by createdAt (newest first)
-        projectsData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        // Projects are already sorted by sortOrder from the query
+        // Projects without sortOrder will be at the end (Firestore treats null/undefined as last)
         
         // Normalize image URLs for all projects in parallel for better performance
         const projectsWithNormalizedImages = await Promise.all(

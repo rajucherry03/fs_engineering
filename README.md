@@ -61,6 +61,47 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
 ```
 
+### EmailJS Setup (for Registration Notifications)
+
+The app sends email notifications to `raju14102003@gmail.com` when new users register. To enable this feature:
+
+1. **Sign up for EmailJS** (free tier available):
+   - Go to [EmailJS](https://www.emailjs.com/)
+   - Create a free account
+
+2. **Create an Email Service**:
+   - In EmailJS dashboard, go to "Email Services"
+   - Add a new service (Gmail, Outlook, etc.)
+   - Follow the setup instructions for your email provider
+
+3. **Create an Email Template**:
+   - Go to "Email Templates" in EmailJS dashboard
+   - Create a new template
+   - Use these template variables in your email:
+     - `{{to_email}}` - Recipient email (will be raju14102003@gmail.com)
+     - `{{to_name}}` - Recipient name
+     - `{{user_name}}` - New user's name
+     - `{{user_email}}` - New user's email
+     - `{{registration_method}}` - Registration method (Google OAuth or Email/Password)
+     - `{{registration_date}}` - Registration date and time
+     - `{{user_uid}}` - Firebase user UID
+     - `{{subject}}` - Email subject
+     - `{{message}}` - Email message body
+
+4. **Get your credentials**:
+   - Go to "Account" → "General" to find your Public Key
+   - Copy your Service ID from "Email Services"
+   - Copy your Template ID from "Email Templates"
+
+5. **Add to `.env` file**:
+```env
+VITE_EMAILJS_SERVICE_ID=your_service_id
+VITE_EMAILJS_TEMPLATE_ID=your_template_id
+VITE_EMAILJS_PUBLIC_KEY=your_public_key
+```
+
+**Note**: If EmailJS is not configured, the app will still work normally, but registration emails will not be sent (a warning will be logged to the console).
+
 ## 📁 Project Structure
 
 ```
@@ -137,9 +178,10 @@ npm run build
 ## 🔒 Authentication
 
 The app includes Firebase Authentication for:
-- User registration and login
+- User registration and login (Email/Password and Google OAuth)
 - Protected routes
 - User profile management
+- **Registration Email Notifications**: When a new user registers (via email/password or Google), an email notification is automatically sent to `raju14102003@gmail.com` with the user's registration details
 
 ## 📊 Database Structure
 

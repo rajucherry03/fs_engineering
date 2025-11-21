@@ -13,6 +13,8 @@ import { Contact } from './pages/Contact'
 import { Login } from './pages/Login'
 import { Careers } from './pages/Careers'
 import { Others } from './pages/Others'
+import { CompanyPolicy } from './pages/CompanyPolicy'
+import { TermsAndConditions } from './pages/TermsAndConditions'
 
 function App() {
   return (
@@ -32,6 +34,8 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/careers" element={<Careers />} />
                 <Route path="/others" element={<Others />} />
+                <Route path="/company-policy" element={<CompanyPolicy />} />
+                <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
               </Routes>
             </main>
             <Footer />

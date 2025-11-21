@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { collection, getDocs } from 'firebase/firestore'
+import { collection, getDocs, query, orderBy } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { normalizeImageUrl } from '../utils/imageUtils'
 import ImageWithFallback from '../components/ImageWithFallback'
@@ -13,7 +13,10 @@ import {
   ArrowRight,
   Star,
   LucideIcon,
-  X
+  X,
+  DollarSign,
+  FileText,
+  Briefcase
 } from 'lucide-react'
 
 // Types
@@ -21,7 +24,8 @@ interface Service {
   icon: LucideIcon
   title: string
   description: string
-  image: string
+  image?: string
+  redirectToContact?: boolean
 }
 
 interface Project {
@@ -31,6 +35,7 @@ interface Project {
   image: string
   category: string
   featured: boolean
+  sortOrder?: number
 }
 
 // Constants
@@ -64,6 +69,24 @@ const SERVICES: Service[] = [
     title: 'Human Resources',
     description: 'Efficient HR services including recruitment, training, and workforce management for project success.',
     image: '/assets/HumanResource.jpeg',
+  },
+  {
+    icon: DollarSign,
+    title: 'Estimation & Costing',
+    description: 'Accurate assessment of project quantities and costs ensures effective budgeting and financial control.',
+    redirectToContact: true,
+  },
+  {
+    icon: FileText,
+    title: 'Detailed Project Report (DPR)',
+    description: 'Comprehensive documentation covering technical, financial, and operational details for clear project planning.',
+    redirectToContact: true,
+  },
+  {
+    icon: Briefcase,
+    title: 'Project Management',
+    description: 'Systematic coordination of resources, schedules, and processes to achieve defined project objectives.',
+    redirectToContact: true,
   },
 ]
 
@@ -200,12 +223,24 @@ const ServiceCard = ({ service, index, onClick }: { service: Service; index: num
       whileHover={{ scale: 1.02 }}
     >
       <div className="relative h-64 md:h-72 lg:h-80 overflow-hidden">
-        <img
-          src={service.image}
-          alt={service.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+        {service.image ? (
+          <>
+            <img
+              src={service.image}
+              alt={service.title}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+          </>
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-primary-500 to-primary-700 dark:from-primary-600 dark:to-primary-800 flex items-center justify-center">
+            <div className="text-center p-6">
+              <div className="bg-white/20 backdrop-blur-sm p-4 rounded-full inline-block mb-4">
+                <IconComponent size={48} className="text-white" />
+              </div>
+            </div>
+          </div>
+        )}
         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg">
           <IconComponent size={20} className="text-primary-600" />
         </div>
@@ -248,12 +283,24 @@ const ServiceModal = ({ service, isOpen, onClose }: { service: Service | null; i
             >
               <div className="relative">
                 <div className="relative h-64 md:h-80 overflow-hidden">
-                  <img
-                    src={service.image}
-                    alt={service.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                  {service.image ? (
+                    <>
+                      <img
+                        src={service.image}
+                        alt={service.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                    </>
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary-500 to-primary-700 dark:from-primary-600 dark:to-primary-800 flex items-center justify-center">
+                      <div className="text-center p-6">
+                        <div className="bg-white/20 backdrop-blur-sm p-6 rounded-full inline-block">
+                          <IconComponent size={64} className="text-white" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <button
                     onClick={onClose}
                     className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-colors shadow-lg"
@@ -303,8 +350,15 @@ const ServiceModal = ({ service, isOpen, onClose }: { service: Service | null; i
 const ServicesSection = () => {
   const [selectedService, setSelectedService] = useState<Service | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const navigate = useNavigate()
 
   const handleCardClick = (service: Service) => {
+    // If service has redirectToContact flag, redirect to contact page
+    if (service.redirectToContact) {
+      navigate('/contact')
+      return
+    }
+    // Otherwise, open modal as usual
     setSelectedService(service)
     setIsModalOpen(true)
   }
@@ -515,7 +569,9 @@ const PortfolioSection = () => {
       try {
         setLoading(true)
         const projectsCollection = collection(db, 'projects')
-        const projectsSnapshot = await getDocs(projectsCollection)
+        // Query projects ordered by sortOrder (ascending)
+        const projectsQuery = query(projectsCollection, orderBy('sortOrder', 'asc'))
+        const projectsSnapshot = await getDocs(projectsQuery)
         const projectsData = projectsSnapshot.docs.map(doc => {
           const data = doc.data()
           return {
@@ -524,16 +580,13 @@ const PortfolioSection = () => {
             description: data.description || '',
             image: data.image || '',
             category: data.category || '',
-            featured: data.featured || false
+            featured: data.featured || false,
+            sortOrder: data.sortOrder !== undefined ? data.sortOrder : Number.MAX_SAFE_INTEGER
           }
         }) as Project[]
         
-        // Sort by featured first, then by createdAt (newest first)
-        projectsData.sort((a, b) => {
-          if (a.featured && !b.featured) return -1
-          if (!a.featured && b.featured) return 1
-          return 0
-        })
+        // Projects are already sorted by sortOrder from the query
+        // Projects without sortOrder will be at the end (Firestore treats null/undefined as last)
         
         // Normalize image URLs and take only first 6 projects
         const projectsWithNormalizedImages = await Promise.all(
@@ -544,11 +597,18 @@ const PortfolioSection = () => {
                 const normalizedUrl = await normalizeImageUrl(imageValue)
                 if (normalizedUrl && (normalizedUrl.startsWith('http') || normalizedUrl.startsWith('/') || normalizedUrl.startsWith('data:'))) {
                   return { ...project, image: normalizedUrl }
+                } else {
+                  // If normalization returned null or invalid URL, keep original or set to null
+                  console.warn(`Invalid image URL for project ${project.id}: ${imageValue}`)
+                  return { ...project, image: project.image || null }
                 }
               } catch (error) {
                 console.warn(`Failed to normalize image for project ${project.id}:`, error)
+                // Return project with original image or null if normalization fails
+                return { ...project, image: project.image || null }
               }
             }
+            // Always return the project, even if no image
             return { ...project, image: project.image || null }
           })
         )
