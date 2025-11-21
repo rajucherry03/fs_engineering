@@ -178,16 +178,18 @@ export const Login = () => {
         alert('Login successful!')
         navigate('/')
       } else {
-        // Check if this is a new user by comparing creation time and last sign-in time
-        // If they're the same (or very close), it's a new registration
-        const creationTime = userCredential.user.metadata.creationTime
-        const lastSignInTime = userCredential.user.metadata.lastSignInTime
+        // When in sign-up mode, always send registration email
+        // Even if user already exists, they're attempting to register
+        console.log('Google Sign-up mode - Sending registration email...')
+        console.log('User details:', {
+          displayName: userCredential.user.displayName,
+          email: userCredential.user.email,
+          uid: userCredential.user.uid,
+          creationTime: userCredential.user.metadata.creationTime,
+          lastSignInTime: userCredential.user.metadata.lastSignInTime
+        })
         
-        const isNewUser = creationTime && lastSignInTime && 
-          Math.abs(new Date(creationTime).getTime() - new Date(lastSignInTime).getTime()) < 10000
-        
-        // Send registration email only for new users
-        if (isNewUser) {
+        try {
           await sendRegistrationEmail({
             userName: userCredential.user.displayName || 'Unknown',
             userEmail: userCredential.user.email || 'Unknown',
@@ -204,6 +206,9 @@ export const Login = () => {
             }),
             userUid: userCredential.user.uid
           })
+          console.log('✅ Registration email sent successfully for Google user')
+        } catch (error) {
+          console.error('❌ Failed to send registration email for Google user:', error)
         }
         
         alert('Account created successfully!')
