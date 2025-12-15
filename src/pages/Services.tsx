@@ -202,19 +202,19 @@ export const Services = () => {
       icon: DollarSign,
       title: 'Estimation & Costing',
       description: 'Accurate assessment of project quantities and costs ensures effective budgeting and financial control.',
-      redirectToContact: true,
+      image: '/assets/analysis.jpg',
     },
     {
       icon: FileText,
       title: 'Detailed Project Report (DPR)',
       description: 'Comprehensive documentation covering technical, financial, and operational details for clear project planning.',
-      redirectToContact: true,
+      image: '/assets/ana2.jpg',
     },
     {
       icon: Briefcase,
       title: 'Project Management',
       description: 'Systematic coordination of resources, schedules, and processes to achieve defined project objectives.',
-      redirectToContact: true,
+      image: '/assets/pm.jpg',
     },
   ]
 

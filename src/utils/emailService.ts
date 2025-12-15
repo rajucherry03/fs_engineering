@@ -66,7 +66,7 @@ export const sendRegistrationEmail = async (registrationData: RegistrationData):
 
     // Prepare email template parameters
     const templateParams = {
-      to_email: 'yours.iq@gmail.com',
+      to_email: 'contact@fseservice.in',
       to_name: 'Admin',
       from_name: `Registration System - ${registrationData.userEmail}`, // Format: "Registration System - user@email.com"
       from_email: registrationData.userEmail,
@@ -200,7 +200,7 @@ export const sendContactEmail = async (contactData: ContactFormData): Promise<vo
     const response = await emailjs.send(serviceId, contactTemplateId, templateParams)
     
     console.log('✅ Contact form email sent successfully!', response)
-    console.log('📬 Email should arrive at: yours.iq@gmail.com')
+    console.log('📬 Email should arrive at: contact@fseservice.in')
   } catch (error: any) {
     // Log error but don't throw - we don't want to block form submission if email fails
     console.error('❌ Failed to send contact form email:', error)
