@@ -34,78 +34,107 @@ export const Projects = () => {
   const [isModalFlipped, setIsModalFlipped] = useState(false)
 
   // Fetch projects from Firebase
-  useEffect(() => {
-    const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const projectsCollection = collection(db, 'projects')
+      
+      let projectsSnapshot
       try {
-        setLoading(true)
-        setError(null)
-        const projectsCollection = collection(db, 'projects')
-        // Query projects ordered by sortOrder (ascending)
+        // Try to query projects ordered by sortOrder (ascending)
         const projectsQuery = query(projectsCollection, orderBy('sortOrder', 'asc'))
-        const projectsSnapshot = await getDocs(projectsQuery)
-        const projectsData = projectsSnapshot.docs.map(doc => {
-          const data = doc.data()
-          return {
-            id: doc.id,
-            title: data.title || '',
-            description: data.description || '',
-            image: data.image || '',
-            technologies: data.technologies || [],
-            category: data.category || '',
-            analysis: data.analysis || '',
-            structure: data.structure || '',
-            estimation: data.estimation || '',
-            status: data.status || 'planned',
-            featured: data.featured || false,
-            views: data.views || 0,
-            createdAt: data.createdAt || new Date().toISOString(),
-            updatedAt: data.updatedAt || new Date().toISOString(),
-            sortOrder: data.sortOrder !== undefined ? data.sortOrder : Number.MAX_SAFE_INTEGER
-          }
-        }) as Project[]
-        
-        // Projects are already sorted by sortOrder from the query
-        // Projects without sortOrder will be at the end (Firestore treats null/undefined as last)
-        
-        // Normalize image URLs for all projects in parallel for better performance
-        const projectsWithNormalizedImages = await Promise.all(
-          projectsData.map(async (project) => {
-            // Try to normalize all images, regardless of format
-            if (project.image && typeof project.image === 'string') {
-              const imageValue = project.image.trim()
-              
-              // Always try to normalize the image URL first
-              try {
-                const normalizedUrl = await normalizeImageUrl(imageValue)
-                // Use normalized URL if it's valid (starts with http, /, or data:)
-                if (normalizedUrl && (normalizedUrl.startsWith('http') || normalizedUrl.startsWith('/') || normalizedUrl.startsWith('data:'))) {
-                  return { ...project, image: normalizedUrl }
-                } else {
-                  // If normalization returned null or invalid URL, set to null
-                  console.warn(`Invalid image URL for project ${project.id}: ${imageValue}`)
-                  return { ...project, image: null }
-                }
-              } catch (error) {
-                console.warn(`Failed to normalize image for project ${project.id}:`, error)
-                // Set to null if normalization fails
+        projectsSnapshot = await getDocs(projectsQuery)
+      } catch (orderByError: any) {
+        // If orderBy fails (e.g., missing index), fall back to fetching without orderBy
+        console.warn('Failed to query with orderBy, fetching without order:', orderByError)
+        try {
+          projectsSnapshot = await getDocs(projectsCollection)
+        } catch (fallbackError: any) {
+          // If even the fallback fails, it's likely a permission issue
+          throw fallbackError
+        }
+      }
+      
+      const projectsData = projectsSnapshot.docs.map(doc => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          title: data.title || '',
+          description: data.description || '',
+          image: data.image || '',
+          technologies: data.technologies || [],
+          category: data.category || '',
+          analysis: data.analysis || '',
+          structure: data.structure || '',
+          estimation: data.estimation || '',
+          status: data.status || 'planned',
+          featured: data.featured || false,
+          views: data.views || 0,
+          createdAt: data.createdAt || new Date().toISOString(),
+          updatedAt: data.updatedAt || new Date().toISOString(),
+          sortOrder: data.sortOrder !== undefined ? data.sortOrder : Number.MAX_SAFE_INTEGER
+        }
+      }) as Project[]
+      
+      // Sort projects by sortOrder (in case we fetched without orderBy)
+      projectsData.sort((a, b) => {
+        const sortA = a.sortOrder ?? Number.MAX_SAFE_INTEGER
+        const sortB = b.sortOrder ?? Number.MAX_SAFE_INTEGER
+        return sortA - sortB
+      })
+      
+      // Normalize image URLs for all projects in parallel for better performance
+      const projectsWithNormalizedImages = await Promise.all(
+        projectsData.map(async (project) => {
+          // Try to normalize all images, regardless of format
+          if (project.image && typeof project.image === 'string') {
+            const imageValue = project.image.trim()
+            
+            // Always try to normalize the image URL first
+            try {
+              const normalizedUrl = await normalizeImageUrl(imageValue)
+              // Use normalized URL if it's valid (starts with http, /, or data:)
+              if (normalizedUrl && (normalizedUrl.startsWith('http') || normalizedUrl.startsWith('/') || normalizedUrl.startsWith('data:'))) {
+                return { ...project, image: normalizedUrl }
+              } else {
+                // If normalization returned null or invalid URL, set to null
+                console.warn(`Invalid image URL for project ${project.id}: ${imageValue}`)
                 return { ...project, image: null }
               }
+            } catch (error) {
+              console.warn(`Failed to normalize image for project ${project.id}:`, error)
+              // Set to null if normalization fails
+              return { ...project, image: null }
             }
-            return { ...project, image: null }
-          })
-        )
-        
-        setProjects(projectsWithNormalizedImages)
-      } catch (error) {
-        console.error('Error fetching projects:', error)
-        setError('Failed to load projects. Please try again.')
-      } finally {
-        setLoading(false)
+          }
+          return { ...project, image: null }
+        })
+      )
+      
+      setProjects(projectsWithNormalizedImages)
+    } catch (error: any) {
+      console.error('Error fetching projects:', error)
+      // Provide more helpful error messages
+      let errorMessage = 'Failed to load projects. Please try again.'
+      if (error?.code === 'permission-denied') {
+        errorMessage = 'Permission denied. The Firestore rules may need to be deployed. Please contact the administrator.'
+      } else if (error?.code === 'unavailable') {
+        errorMessage = 'Service temporarily unavailable. Please check your internet connection.'
+      } else if (error?.message?.includes('index')) {
+        errorMessage = 'Database index is being created. Please wait a few minutes and try again.'
+      } else if (error?.code) {
+        errorMessage = `Error: ${error.code}. ${error.message || 'Please try again.'}`
       }
+      setError(errorMessage)
+    } finally {
+      setLoading(false)
     }
-
-    fetchProjects()
   }, [])
+
+  useEffect(() => {
+    fetchProjects()
+  }, [fetchProjects])
 
   const handleCardClick = (projectId: string) => {
     setFlippedCards(prev => {
@@ -167,10 +196,11 @@ export const Projects = () => {
             <div className="text-center py-12">
               <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
               <button
-                onClick={() => window.location.reload()}
+                onClick={fetchProjects}
                 className="btn-primary"
+                disabled={loading}
               >
-                Retry
+                {loading ? 'Loading...' : 'Retry'}
               </button>
             </div>
           ) : projects.length === 0 ? (

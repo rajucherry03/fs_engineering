@@ -572,9 +572,18 @@ const PortfolioSection = () => {
       try {
         setLoading(true)
         const projectsCollection = collection(db, 'projects')
-        // Query projects ordered by sortOrder (ascending)
-        const projectsQuery = query(projectsCollection, orderBy('sortOrder', 'asc'))
-        const projectsSnapshot = await getDocs(projectsQuery)
+        
+        let projectsSnapshot
+        try {
+          // Try to query projects ordered by sortOrder (ascending)
+          const projectsQuery = query(projectsCollection, orderBy('sortOrder', 'asc'))
+          projectsSnapshot = await getDocs(projectsQuery)
+        } catch (orderByError: any) {
+          // If orderBy fails (e.g., missing index), fall back to fetching without orderBy
+          console.warn('Failed to query with orderBy, fetching without order:', orderByError)
+          projectsSnapshot = await getDocs(projectsCollection)
+        }
+        
         const projectsData = projectsSnapshot.docs.map(doc => {
           const data = doc.data()
           return {
@@ -588,8 +597,12 @@ const PortfolioSection = () => {
           }
         }) as Project[]
         
-        // Projects are already sorted by sortOrder from the query
-        // Projects without sortOrder will be at the end (Firestore treats null/undefined as last)
+        // Sort projects by sortOrder (in case we fetched without orderBy)
+        projectsData.sort((a, b) => {
+          const sortA = a.sortOrder ?? Number.MAX_SAFE_INTEGER
+          const sortB = b.sortOrder ?? Number.MAX_SAFE_INTEGER
+          return sortA - sortB
+        })
         
         // Normalize image URLs and take only first 6 projects
         const projectsWithNormalizedImages = await Promise.all(
