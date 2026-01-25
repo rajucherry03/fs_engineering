@@ -214,7 +214,7 @@ export const About = () => {
                 <Phone size={24} />
               </div>
               <h3 className="text-base font-semibold mb-2 dark:text-white">Phone</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300">+91 6302 91175</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">94919 91175</p>
             </motion.div>
 
             <motion.div
@@ -228,7 +228,7 @@ export const About = () => {
                 <Mail size={24} />
               </div>
               <h3 className="text-base font-semibold mb-2 dark:text-white">Email</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300">chilakapatil247@gmail.com</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">contact@fseservice.in</p>
             </motion.div>
           </div>
 

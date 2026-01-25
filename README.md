@@ -205,7 +205,7 @@ This project is licensed under the MIT License.
 
 ## 📞 Support
 
-For support, email chilakapatil247@gmail.com or call +91 63029 91175.
+For support, email contact@fseservice.in or call 94919 91175.
 
 ---
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Send } from 'lucide-react'
+import { Send, Mail, Phone } from 'lucide-react'
 import { sendContactEmail } from '../utils/emailService'
 
 export const Contact = () => {
@@ -91,6 +91,44 @@ export const Contact = () => {
 
   return (
     <div className="pt-20">
+      {/* Contact Us Info */}
+      <section className="bg-primary-50 dark:bg-gray-800 py-6">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <motion.div
+              className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md flex items-center gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="bg-primary-100 w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-primary-600">
+                <Mail size={24} />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Email</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">contact@fseservice.in</p>
+              </div>
+            </motion.div>
+            <motion.div
+              className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md flex items-center gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <div className="bg-primary-100 w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-primary-600">
+                <Phone size={24} />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Phone</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">94919 91175</p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Contact Form Section */}
       <section className="pt-8 pb-16 md:pb-20 bg-white dark:bg-gray-900">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 w-full">

@@ -60,11 +60,11 @@ export const Footer = () => {
           <ul className="space-y-2.5 text-sm">
             <li className="flex items-start gap-2.5">
               <span className="text-primary-600 dark:text-primary-400 mt-0.5">✉️</span>
-              <span className="text-gray-700 dark:text-gray-300">chilakapatil247@gmail.com</span>
+              <span className="text-gray-700 dark:text-gray-300">contact@fseservice.in</span>
             </li>
             <li className="flex items-start gap-2.5">
               <span className="text-primary-600 dark:text-primary-400 mt-0.5">📞</span>
-              <span className="text-gray-700 dark:text-gray-300">+91 63029 91175</span>
+              <span className="text-gray-700 dark:text-gray-300">94919 91175</span>
             </li>
           </ul>
         </div>
